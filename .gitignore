@@ -3,3 +3,10 @@
 compile_commands.json
 main.o
 ssmp
+controller.o
+moc_controller.o
+moc_library_model.o
+moc_predefs.h
+moc_library_model.cpp
+moc_controller.cpp
+library_model.o

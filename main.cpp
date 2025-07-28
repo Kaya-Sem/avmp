@@ -1,4 +1,5 @@
-
+#include "controller/controller.hpp"
+#include "library_model/library_model.hpp"
 #include "qframe.h"
 #include "qlabel.h"
 #include <QApplication>
@@ -18,6 +19,8 @@
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
+  Library  *library = new Library();
+  Controller * controller = new Controller(library);
 
   QMediaPlayer *player = new QMediaPlayer();
   QAudioOutput *audioOutput = new QAudioOutput();
@@ -72,7 +75,7 @@ int main(int argc, char *argv[]) {
   
   // Edit menu
   QMenu *editMenu = menuBar->addMenu("&Library");
-  QAction *undoAction = editMenu->addAction("&Full scan");
+  QAction *fullScanAction = editMenu->addAction("&Full scan");
   editMenu->addSeparator();
   QAction *cutAction = editMenu->addAction("&Play song");
   
@@ -104,6 +107,8 @@ int main(int argc, char *argv[]) {
   QObject::connect(playButton, &QPushButton::clicked, [player]() {
     player->play();
   });
+
+  QObject::connect(fullScanAction, &QAction::triggered, controller, &Controller::scanLibrary);
 
   QObject::connect(pauseButton, &QPushButton::clicked, [player]() {
     player->pause();

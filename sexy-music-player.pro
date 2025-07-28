@@ -16,4 +16,9 @@ QT += core gui widgets multimedia
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 # Input
-SOURCES += main.cpp
+SOURCES += main.cpp \
+           controller/controller.cpp \
+           library_model/library_model.cpp
+
+HEADERS += controller/controller.hpp \
+           library_model/library_model.hpp

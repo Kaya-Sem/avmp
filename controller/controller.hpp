@@ -1,10 +1,19 @@
-#include <QtCore/QObject>
+#ifndef CONTROLLER
+#define CONTROLLER
+
 #include "library_model/library_model.hpp"
+#include "qobject.h"
+#include "qtmetamacros.h"
+#include <QObject>
 
-class controller {
-
+class Controller : public QObject {
+  Q_OBJECT
 
 public:
-    library* lib;
+  explicit Controller(Library *library, QObject *parent = nullptr);
 
+public slots:
+  void scanLibrary();
 };
+
+#endif // CONTROLLER
