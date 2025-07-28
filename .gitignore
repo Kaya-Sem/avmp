@@ -10,3 +10,4 @@ moc_predefs.h
 moc_library_model.cpp
 moc_controller.cpp
 library_model.o
+library.o

@@ -1,5 +1,5 @@
 #include "controller/controller.hpp"
-#include "library_model/library_model.hpp"
+#include "library_model/library.hpp"
 #include "qframe.h"
 #include "qlabel.h"
 #include <QApplication>
@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
 
  QObject::connect(cutAction, &QAction::triggered, [&window, player]() {
     // For now, use a hardcoded path (update this to your music file)
-    QString musicFile = "/home/kayasem/Music/sample.mp3";  // Update this path
+    QString musicFile = "/home/kayasem/Music/Library/song.mp3";  // Update this path
     player->setSource(QUrl::fromLocalFile(musicFile));
     player->play();
   });

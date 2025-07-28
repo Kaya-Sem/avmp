@@ -1,7 +1,7 @@
 #ifndef CONTROLLER
 #define CONTROLLER
 
-#include "library_model/library_model.hpp"
+#include "library_model/library.hpp"
 #include "qobject.h"
 #include "qtmetamacros.h"
 #include <QObject>

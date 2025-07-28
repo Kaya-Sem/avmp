@@ -1,19 +1,13 @@
-#ifndef LIBRARY
-#define LIBRARY
+#ifndef LIBRARY_MODEL
+#define LIBRARY_MODEL
 
-#include "qobject.h"
-#include "qtmetamacros.h"
-#include <QObject>
+#include <QAbstractItemModel>
 
-class Library : public QObject{
-    Q_OBJECT
-
-    public:
-    explicit Library(QObject* parent = nullptr);
-
-    void addSongs();
+class LibraryModel : public QAbstractItemModel {
 
 };
 
 
-#endif // !LIBRARY
+
+
+#endif // !LIBRARY_MODEL
