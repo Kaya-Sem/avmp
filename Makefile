@@ -17,7 +17,7 @@ CXX           = g++
 DEFINES       = -DQT_NO_DEBUG -DQT_WIDGETS_LIB -DQT_MULTIMEDIA_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_CORE_LIB
 CFLAGS        = -pipe -O2 -Wall -Wextra -mno-direct-extern-access -D_REENTRANT $(DEFINES)
 CXXFLAGS      = -pipe -O2 -Wall -Wextra -mno-direct-extern-access -D_REENTRANT $(DEFINES)
-INCPATH       = -I. -I. -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I. -I/usr/lib/qt6/mkspecs/linux-g++
+INCPATH       = -I. -I. -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I. -I/usr/lib/qt6/mkspecs/linux-g++
 QMAKE         = /usr/bin/qmake6
 DEL_FILE      = rm -f
 CHK_DIR_EXISTS= test -d
@@ -40,7 +40,7 @@ DISTNAME      = ssmp1.0.0
 DISTDIR = /home/kayasem/Software/Personal/sexy-music-player/.tmp/ssmp1.0.0
 LINK          = g++
 LFLAGS        = -Wl,-O1 -Wl,-rpath,/usr/lib -Wl,-rpath-link,/usr/lib
-LIBS          = $(SUBLIBS) /usr/lib/libQt6Widgets.so /usr/lib/libQt6Multimedia.so /usr/lib/libQt6Gui.so /usr/lib/libGLX.so /usr/lib/libOpenGL.so /usr/lib/libQt6Network.so /usr/lib/libQt6Core.so -lpthread -lGLX -lOpenGL   
+LIBS          = $(SUBLIBS) -ltag /usr/lib/libQt6Widgets.so /usr/lib/libQt6Multimedia.so /usr/lib/libQt6Gui.so /usr/lib/libGLX.so /usr/lib/libOpenGL.so /usr/lib/libQt6Network.so /usr/lib/libQt6Core.so -lpthread -lGLX -lOpenGL   
 AR            = ar cqs
 RANLIB        = 
 SED           = sed
@@ -955,14 +955,16 @@ compiler_moc_header_clean:
 	-$(DEL_FILE) moc_controller.cpp moc_library.cpp
 moc_controller.cpp: controller/controller.hpp \
 		library_model/library.hpp \
+		library_model/library_model.hpp \
 		moc_predefs.h \
 		/usr/lib/qt6/moc
-	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include controller/controller.hpp -o moc_controller.cpp
+	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include controller/controller.hpp -o moc_controller.cpp
 
 moc_library.cpp: library_model/library.hpp \
+		library_model/library_model.hpp \
 		moc_predefs.h \
 		/usr/lib/qt6/moc
-	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include library_model/library.hpp -o moc_library.cpp
+	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include library_model/library.hpp -o moc_library.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -981,14 +983,17 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 ####### Compile
 
 main.o: main.cpp controller/controller.hpp \
-		library_model/library.hpp
+		library_model/library.hpp \
+		library_model/library_model.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 controller.o: controller/controller.cpp controller/controller.hpp \
-		library_model/library.hpp
+		library_model/library.hpp \
+		library_model/library_model.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o controller.o controller/controller.cpp
 
-library.o: library_model/library.cpp 
+library.o: library_model/library.cpp library_model/library.hpp \
+		library_model/library_model.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o library.o library_model/library.cpp
 
 moc_controller.o: moc_controller.cpp 

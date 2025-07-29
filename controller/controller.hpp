@@ -12,8 +12,14 @@ class Controller : public QObject {
 public:
   explicit Controller(Library *library, QObject *parent = nullptr);
 
+signals:
+  void scanLibraryUpdate(const std::string &message);
+
 public slots:
   void scanLibrary();
+
+private:
+  Library *library;
 };
 
 #endif // CONTROLLER

@@ -4,7 +4,9 @@
 
 TEMPLATE = app
 TARGET = ssmp
-INCLUDEPATH += .
+INCLUDEPATH += . /usr/include/taglib
+
+LIBS += -ltag
 
 QT += core gui widgets multimedia
 

@@ -53,9 +53,14 @@ int main(int argc, char *argv[]) {
   QPushButton *pauseButton = new QPushButton("Pause");
   QPushButton *stopButton = new QPushButton("Stop");
   
+  // Add status label for library updates
+  QLabel *statusLabel = new QLabel("Ready");
+  statusLabel->setStyleSheet("QLabel { color: #666; font-style: italic; }");
+  
   mediacontrols_hbox->addWidget(playButton);
   mediacontrols_hbox->addWidget(pauseButton);
   mediacontrols_hbox->addWidget(stopButton);
+  mediacontrols_hbox->addWidget(statusLabel);
 
   vbox->addLayout(hbox);
   vbox->addWidget(mediacontrol_frame);
@@ -86,8 +91,7 @@ int main(int argc, char *argv[]) {
   
 
  QObject::connect(cutAction, &QAction::triggered, [&window, player]() {
-    // For now, use a hardcoded path (update this to your music file)
-    QString musicFile = "/home/kayasem/Music/Library/song.mp3";  // Update this path
+    QString musicFile = "/home/kayasem/Music/Library/song.mp3";
     player->setSource(QUrl::fromLocalFile(musicFile));
     player->play();
   });
@@ -109,6 +113,11 @@ int main(int argc, char *argv[]) {
   });
 
   QObject::connect(fullScanAction, &QAction::triggered, controller, &Controller::scanLibrary);
+
+  QObject::connect(controller, &Controller::scanLibraryUpdate, 
+                   [statusLabel](const std::string& message) {
+                     statusLabel->setText(QString::fromStdString(message));
+                   });
 
   QObject::connect(pauseButton, &QPushButton::clicked, [player]() {
     player->pause();
@@ -136,7 +145,6 @@ window.showFullScreen();
 
   int result = app.exec();
   
-  // Cleanup
   delete player;
   delete audioOutput;
   
