@@ -1,5 +1,6 @@
 #include "controller/controller.hpp"
 #include "library/library.hpp"
+#include "library/library_model.hpp"
 #include "qframe.h"
 #include "qlabel.h"
 #include <QApplication>
@@ -16,6 +17,8 @@
 #include <QFileDialog>
 #include <QDir>
 #include <QPushButton>
+#include <QTreeView>
+#include <QSplitter>
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
@@ -35,10 +38,26 @@ int main(int argc, char *argv[]) {
   window.setCentralWidget(centralWidget);
 
   QVBoxLayout *vbox = new QVBoxLayout;
-  QHBoxLayout *hbox = new QHBoxLayout();
+  
 
-  hbox->addWidget(new QLabel("Sidebar"));
-  hbox->addWidget(new QLabel("Main window"));
+  QSplitter *splitter = new QSplitter(Qt::Horizontal);
+  
+  QTreeView *libraryTreeView = new QTreeView();
+  libraryTreeView->setModel(library->getModel());
+  libraryTreeView->setHeaderHidden(true);
+  libraryTreeView->setMinimumWidth(250);
+  libraryTreeView->setMaximumWidth(600);
+  
+  // Main content area placeholder
+  QLabel *mainContentLabel = new QLabel("Main window");
+  mainContentLabel->setAlignment(Qt::AlignCenter);
+  
+  // Add widgets to splitter
+  splitter->addWidget(libraryTreeView);
+  splitter->addWidget(mainContentLabel);
+  
+  // Set splitter proportions (25% sidebar, 75% main)
+  splitter->setSizes({250, 750});
 
   QFrame *mediacontrol_frame = new QFrame();
 
@@ -62,7 +81,7 @@ int main(int argc, char *argv[]) {
   mediacontrols_hbox->addWidget(stopButton);
   mediacontrols_hbox->addWidget(statusLabel);
 
-  vbox->addLayout(hbox);
+  vbox->addWidget(splitter);
   vbox->addWidget(mediacontrol_frame);
 
   centralWidget->setLayout(vbox);
@@ -138,6 +157,31 @@ int main(int argc, char *argv[]) {
 
   QObject::connect(minimizeAction, &QAction::triggered, [&window]() {
     window.showMinimized();
+  });
+
+  // Connect tree view double-click to play track
+  QObject::connect(libraryTreeView, &QTreeView::doubleClicked, 
+                   [libraryTreeView, player](const QModelIndex& index) {
+    QStandardItemModel* model = qobject_cast<QStandardItemModel*>(libraryTreeView->model());
+    if (!model) return;
+    
+    QStandardItem* item = model->itemFromIndex(index);
+    if (!item) return;
+    
+    // - No parent = Artist (top level)
+    // - Parent has no parent = Album
+    // - Parent's parent exists = Track
+    QStandardItem* parent = item->parent();
+    bool isTrack = parent && parent->parent();
+    
+    if (isTrack) {
+      TrackItem* trackItem = static_cast<TrackItem*>(item);
+      QString filePath = trackItem->getFilePath();
+      if (!filePath.isEmpty()) {
+        player->setSource(QUrl::fromLocalFile(filePath));
+        player->play();
+      }
+    }
   });
 
 window.showFullScreen();

@@ -18,8 +18,10 @@ Controller::Controller(Library *library, QObject *parent) : QObject(parent) {
 
 void Controller::scanLibrary() {
 
-  emit scanLibraryUpdate("Starting library scan...");
-  QCoreApplication::processEvents(); // Allow UI to update
+  emit scanLibraryUpdate("Starting full library (re)scan");
+  QCoreApplication::processEvents();
+
+  library->clear();
 
   std::vector<fs::path> music_files;
   const std::vector<std::string> extentions = {".mp3", ".flac", ".wav", ".ogg",
@@ -42,10 +44,9 @@ void Controller::scanLibrary() {
   emit scanLibraryUpdate("Found " + std::to_string(music_files.size()) +
                          " music files");
 
-  QCoreApplication::processEvents(); // Allow UI to update
-  //
-  std::vector<std::shared_ptr<Track>> track_list;
+  QCoreApplication::processEvents();
 
+  int processed = 0;
   for (const auto &path : music_files) {
 
     std::shared_ptr<Track> track_ptr = std::make_shared<Track>(path);
@@ -66,7 +67,15 @@ void Controller::scanLibrary() {
       std::cout << "Failed to read tags from: " << path << "\n";
     }
 
-    track_list.push_back(track_ptr);
+    library->addTrack(track_ptr);
+    
+    processed++;
+    
+    if (processed % 50 == 0) {
+      emit scanLibraryUpdate("Processing... " + std::to_string(processed) + 
+                           " of " + std::to_string(music_files.size()) + " files");
+      QCoreApplication::processEvents();
+    }
   }
 
   emit scanLibraryUpdate("Library scan completed. Processed " +
