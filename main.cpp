@@ -1,5 +1,5 @@
 #include "controller/controller.hpp"
-#include "library_model/library.hpp"
+#include "library/library.hpp"
 #include "qframe.h"
 #include "qlabel.h"
 #include <QApplication>

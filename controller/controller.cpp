@@ -1,7 +1,10 @@
 #include "controller.hpp"
+#include "track/track.hpp"
+#include <QCoreApplication>
 #include <QObject>
 #include <filesystem>
 #include <iostream>
+#include <memory>
 #include <string>
 #include <taglib/fileref.h>
 #include <taglib/tag.h>
@@ -16,6 +19,7 @@ Controller::Controller(Library *library, QObject *parent) : QObject(parent) {
 void Controller::scanLibrary() {
 
   emit scanLibraryUpdate("Starting library scan...");
+  QCoreApplication::processEvents(); // Allow UI to update
 
   std::vector<fs::path> music_files;
   const std::vector<std::string> extentions = {".mp3", ".flac", ".wav", ".ogg",
@@ -38,27 +42,32 @@ void Controller::scanLibrary() {
   emit scanLibraryUpdate("Found " + std::to_string(music_files.size()) +
                          " music files");
 
+  QCoreApplication::processEvents(); // Allow UI to update
+  //
+  std::vector<std::shared_ptr<Track>> track_list;
+
   for (const auto &path : music_files) {
+
+    std::shared_ptr<Track> track_ptr = std::make_shared<Track>(path);
+
     TagLib::FileRef file(path.c_str());
+
     if (!file.isNull() && file.tag()) {
       TagLib::Tag *tag = file.tag();
-      std::string title = tag->title().to8Bit(true);
-      std::string artist = tag->artist().to8Bit(true);
-      std::string album = tag->album().to8Bit(true);
-      std::string genre = tag->genre().to8Bit(true);
 
-      std::cout << "File: " << path << "\n"
-                << "  Title : " << title << "\n"
-                << "  Artist: " << artist << "\n"
-                << "  Genre: " << genre << "\n"
-                << "  Album : " << album << "\n\n";
-
+      track_ptr->artist = tag->artist().to8Bit(true);
+      track_ptr->album = tag->album().to8Bit(true);
+      track_ptr->title = tag->title().to8Bit(true);
+      track_ptr->year = tag->year();
+      track_ptr->track = tag->track();
+      track_ptr->genre = tag->genre().to8Bit(true);
+      track_ptr->comment = tag->comment().to8Bit(true);
     } else {
       std::cout << "Failed to read tags from: " << path << "\n";
     }
-  }
 
-  std::cout << music_files.size() << "\n";
+    track_list.push_back(track_ptr);
+  }
 
   emit scanLibraryUpdate("Library scan completed. Processed " +
                          std::to_string(music_files.size()) + " files");

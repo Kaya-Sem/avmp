@@ -54,7 +54,7 @@ OBJECTS_DIR   = ./
 
 SOURCES       = main.cpp \
 		controller/controller.cpp \
-		library_model/library.cpp moc_controller.cpp \
+		library/library.cpp moc_controller.cpp \
 		moc_library.cpp
 OBJECTS       = main.o \
 		controller.o \
@@ -333,9 +333,9 @@ DIST          = /usr/lib/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib/qt6/mkspecs/features/yacc.prf \
 		/usr/lib/qt6/mkspecs/features/lex.prf \
 		sexy-music-player.pro controller/controller.hpp \
-		library_model/library.hpp main.cpp \
+		library/library.hpp main.cpp \
 		controller/controller.cpp \
-		library_model/library.cpp
+		library/library.cpp
 QMAKE_TARGET  = ssmp
 DESTDIR       = 
 TARGET        = ssmp
@@ -917,8 +917,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents controller/controller.hpp library_model/library.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp controller/controller.cpp library_model/library.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents controller/controller.hpp library/library.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp controller/controller.cpp library/library.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -954,17 +954,15 @@ compiler_moc_header_make_all: moc_controller.cpp moc_library.cpp
 compiler_moc_header_clean:
 	-$(DEL_FILE) moc_controller.cpp moc_library.cpp
 moc_controller.cpp: controller/controller.hpp \
-		library_model/library.hpp \
-		library_model/library_model.hpp \
 		moc_predefs.h \
 		/usr/lib/qt6/moc
 	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include controller/controller.hpp -o moc_controller.cpp
 
-moc_library.cpp: library_model/library.hpp \
-		library_model/library_model.hpp \
+moc_library.cpp: library/library.hpp \
+		library/library_model.hpp \
 		moc_predefs.h \
 		/usr/lib/qt6/moc
-	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include library_model/library.hpp -o moc_library.cpp
+	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include library/library.hpp -o moc_library.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -983,18 +981,17 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 ####### Compile
 
 main.o: main.cpp controller/controller.hpp \
-		library_model/library.hpp \
-		library_model/library_model.hpp
+		library/library.hpp \
+		library/library_model.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 controller.o: controller/controller.cpp controller/controller.hpp \
-		library_model/library.hpp \
-		library_model/library_model.hpp
+		track/track.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o controller.o controller/controller.cpp
 
-library.o: library_model/library.cpp library_model/library.hpp \
-		library_model/library_model.hpp
-	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o library.o library_model/library.cpp
+library.o: library/library.cpp library/library.hpp \
+		library/library_model.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o library.o library/library.cpp
 
 moc_controller.o: moc_controller.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_controller.o moc_controller.cpp
