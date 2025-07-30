@@ -20,7 +20,9 @@ QT += core gui widgets multimedia
 # Input
 SOURCES += main.cpp \
            controller/controller.cpp \
-           library/library.cpp
+           library/library.cpp \
+           queue/queue.cpp
 
 HEADERS += controller/controller.hpp \
-           library/library.hpp
+           library/library.hpp \
+           queue/queue.hpp

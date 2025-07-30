@@ -14,3 +14,6 @@ library.o
 moc_library.cpp
 moc_library.o
 docs
+moc_queue.cpp
+moc_queue.o
+queue.o
