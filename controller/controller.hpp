@@ -3,7 +3,6 @@
 
 #include "library/library.hpp"
 #include "qobject.h"
-#include "qtmetamacros.h"
 #include <QObject>
 
 class Controller : public QObject {

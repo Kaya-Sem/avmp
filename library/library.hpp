@@ -3,7 +3,6 @@
 
 #include "library/album.hpp"
 #include "library/artist.hpp"
-#include "qtmetamacros.h"
 #include "track/track.hpp"
 #include <QObject>
 #include <QStandardItem>

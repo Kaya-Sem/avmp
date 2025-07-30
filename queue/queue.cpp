@@ -6,9 +6,9 @@
 #include <QDebug>
 #include <memory>
 
-Queue::Queue(QObject *_) {
+Queue::Queue(QObject *parent) : QObject(parent) {
   this->index = -1;
-  this->trackQueue_list = new QList<std::shared_ptr<Track>>;
+  this->queueModel = new QueueModel(this);
 
   this->player = new QMediaPlayer();
   this->audioOutput = new QAudioOutput();
@@ -18,11 +18,16 @@ Queue::Queue(QObject *_) {
   audioOutput->setVolume(0.5);
 };
 
+QueueModel* Queue::getModel() {
+  return queueModel;
+}
+
 void Queue::next() {
-  if (index < trackQueue_list->length()) {
+  const auto& trackList = queueModel->getTrackList();
+  if (index < trackList.length() - 1) {
     index += 1;
 
-    std::string path = trackQueue_list->at(index)->fullPath;
+    std::string path = trackList.at(index)->fullPath;
     player->setSource(QUrl::fromLocalFile(QString::fromStdString(path)));
 
     player->play();
@@ -30,11 +35,11 @@ void Queue::next() {
 }
 
 void Queue::appendTrack(std::shared_ptr<Track> track) {
-  trackQueue_list->append(track);
+  queueModel->appendTrack(track);
 }
 
 void Queue::playNext(std::shared_ptr<Track> track) {
-  trackQueue_list->insert(index + 1, track);
+  queueModel->insertTrack(index + 1, track);
 }
 
 void Queue::pause() {
@@ -51,7 +56,8 @@ void Queue::previous() {
   if (index > 0) {
     index -= 1;
 
-    std::string path = trackQueue_list->at(index)->fullPath;
+    const auto& trackList = queueModel->getTrackList();
+    std::string path = trackList.at(index)->fullPath;
     player->setSource(QUrl::fromLocalFile(QString::fromStdString(path)));
 
     player->play();
@@ -59,10 +65,11 @@ void Queue::previous() {
 }
 
 void Queue::playNow(std::shared_ptr<Track> track) {
-  trackQueue_list->insert(index + 1, track);
+  queueModel->insertTrack(index + 1, track);
   index += 1;
 
-  std::string path = trackQueue_list->at(index)->fullPath;
+  const auto& trackList = queueModel->getTrackList();
+  std::string path = trackList.at(index)->fullPath;
   player->setSource(QUrl::fromLocalFile(QString::fromStdString(path)));
 
   player->play();
@@ -84,10 +91,12 @@ void Queue::seek(int value) {
   player->setPosition(newPos);
 }
 
-void Queue::stop() { player->stop(); }
+void Queue::stop() { 
+  player->stop(); 
+}
 
 void Queue::clear() {
   player->stop();
-
-  trackQueue_list->clear();
+  queueModel->clear();
+  index = -1;
 }

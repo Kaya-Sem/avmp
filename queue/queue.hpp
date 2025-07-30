@@ -5,6 +5,7 @@
 #include "qlist.h"
 #include "qmediaplayer.h"
 #include "qobject.h"
+#include "queue_model.hpp"
 #include <QObject>
 #include <memory>
 #include <track/track.hpp>
@@ -14,6 +15,9 @@ class Queue : public QObject {
 
 public:
   explicit Queue(QObject *parent = nullptr);
+  
+  // Get the model for the QListView
+  QueueModel* getModel();
 
 signals:
 
@@ -48,7 +52,7 @@ private:
   /// Represents the currently selected/playing song in the queue. -1 means
   /// nothing selected.
   int index;
-  QList<std::shared_ptr<Track>> *trackQueue_list;
+  QueueModel *queueModel;
 
   QMediaPlayer *player;
   QAudioOutput *audioOutput;

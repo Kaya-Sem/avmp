@@ -21,8 +21,13 @@ QT += core gui widgets multimedia
 SOURCES += main.cpp \
            controller/controller.cpp \
            library/library.cpp \
-           queue/queue.cpp
+           library/library_model.cpp \
+           queue/queue.cpp \
+           queue/queue_model.cpp
 
 HEADERS += controller/controller.hpp \
            library/library.hpp \
-           queue/queue.hpp
+           library/library_model.hpp \
+           queue/queue.hpp \
+           queue/queue_model.hpp \
+           track/track.hpp

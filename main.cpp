@@ -10,6 +10,7 @@
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QListView>
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QMenu>
@@ -45,13 +46,13 @@ int main(int argc, char *argv[]) {
   libraryTreeView->setMinimumWidth(250);
   libraryTreeView->setMaximumWidth(600);
 
-  // Main content area placeholder
-  QLabel *mainContentLabel = new QLabel("Main window");
-  mainContentLabel->setAlignment(Qt::AlignCenter);
+  // Main content area - QListView for queue
+  QListView *queueListView = new QListView();
+  queueListView->setModel(queue->getModel());
 
   // Add widgets to splitter
   splitter->addWidget(libraryTreeView);
-  splitter->addWidget(mainContentLabel);
+  splitter->addWidget(queueListView);
 
   // Set splitter proportions (25% sidebar, 75% main)
   splitter->setSizes({250, 750});
