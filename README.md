@@ -2,7 +2,9 @@
 
 > an experimental audiophile music player
 
+<img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/788e2655-f417-44dc-aa6a-a2a5479224d9" />
 
+(very much in the works)
 
 
 
