@@ -15,4 +15,4 @@ are used.
 
 ##### dependencies
 
-- [doxygen](https://doxygen.nl/)
+- [doxygen](https://doxygen.nl/) <span style="color: #6c757d;">This is dim text</span>
