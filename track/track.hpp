@@ -6,7 +6,7 @@
 
 class Track {
 public:
-  explicit Track(std::string fullPath) { this->fullPath = fullPath; };
+  explicit Track(std::string fullPath) { this->fullPath = std::move(fullPath); };
 
   explicit Track(QString fullPath) : Track(fullPath.toStdString()) {};
 
