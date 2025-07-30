@@ -1,19 +1,11 @@
 .cache/clangd/index
 .qmake.stash
 compile_commands.json
-main.o
 ssmp
-controller.o
-moc_controller.o
-moc_library_model.o
-moc_predefs.h
-moc_library_model.cpp
-moc_controller.cpp
-library_model.o
-library.o
-moc_library.cpp
-moc_library.o
 docs
-moc_queue.cpp
-moc_queue.o
-queue.o
+
+# Object files
+*.o
+
+# MOC generated files  
+moc_*
