@@ -15,8 +15,5 @@ are used.
 
 ##### dependencies
 
-- [doxygen](https://doxygen.nl/) 
+- [doxygen](https://doxygen.nl/), for documentation
 
-<span style="color: #6c757d;">This is dim text</span>
-
-<small>This is smaller and appears dimmer</small>
