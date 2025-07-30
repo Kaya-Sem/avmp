@@ -24,6 +24,7 @@ public:
 
   QStandardItemModel *getModel() const;
 
+  /// Completely clears the librarys TreeModel
   void clear();
 
 private:

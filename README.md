@@ -1,3 +1,3 @@
-# SSMP
+# Avant Garde Music Player
 
-> super sexy music player
+> an experimental audiophile music player

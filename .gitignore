@@ -13,3 +13,4 @@ library_model.o
 library.o
 moc_library.cpp
 moc_library.o
+docs
