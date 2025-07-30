@@ -18,3 +18,5 @@ are used.
 - [doxygen](https://doxygen.nl/) 
 
 <span style="color: #6c757d;">This is dim text</span>
+
+<small>This is smaller and appears dimmer</small>
