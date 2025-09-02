@@ -25,6 +25,7 @@ signals:
   void playbackPaused();
   void playbackStopped();
   void positionChanged();
+  void trackChanged();
 
 public slots:
   void next();

@@ -1,14 +1,15 @@
+#include "context/player_context.hpp"
 #include "controller/controller.hpp"
 #include "library/library.hpp"
-#include "context/player_context.hpp"
+#include "queue/queue.hpp"
+#include "ui/mediacontrol/mediacontrol.hpp"
 #include "ui/tabs/collection_treeview_tab.hpp"
 #include "ui/tabs/track_context_tab.hpp"
-#include "qframe.h"
-#include "qlabel.h"
-#include "queue/queue.hpp"
 #include <QApplication>
 #include <QAudioOutput>
+#include <QDateTime>
 #include <QDir>
+#include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -17,34 +18,32 @@
 #include <QMediaPlayer>
 #include <QMenu>
 #include <QMenuBar>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSplitter>
+#include <QTabWidget>
+#include <QTextEdit>
+#include <QTextStream>
 #include <QTreeView>
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
-#include <QTabWidget>
-#include <QTextEdit>
-#include <QPlainTextEdit>
-#include <QDateTime>
-#include <QFile>
-#include <QTextStream>
 #include <memory>
 
 // Global terminal widget for logging
-QPlainTextEdit* g_terminalWidget = nullptr;
+QPlainTextEdit *g_terminalWidget = nullptr;
 
-void logToTerminal(const QString& message) {
-    if (g_terminalWidget) {
-        QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
-        QString logMessage = QString("%1 %2").arg(timestamp, message);
-        g_terminalWidget->appendPlainText(logMessage);
-        
-        // Auto-scroll to bottom
-        QTextCursor cursor = g_terminalWidget->textCursor();
-        cursor.movePosition(QTextCursor::End);
-        g_terminalWidget->setTextCursor(cursor);
-    }
+void logToTerminal(const QString &message) {
+  if (g_terminalWidget) {
+    QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
+    QString logMessage = QString("%1 %2").arg(timestamp, message);
+    g_terminalWidget->appendPlainText(logMessage);
+
+    // Auto-scroll to bottom
+    QTextCursor cursor = g_terminalWidget->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    g_terminalWidget->setTextCursor(cursor);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -65,7 +64,7 @@ int main(int argc, char *argv[]) {
   QVBoxLayout *vbox = new QVBoxLayout;
 
   QSplitter *mainSplitter = new QSplitter(Qt::Horizontal);
-  
+
   // Left tabbed pane
   QTabWidget *leftTabWidget = new QTabWidget();
   leftTabWidget->setMinimumWidth(250);
@@ -91,33 +90,29 @@ int main(int argc, char *argv[]) {
   QTabWidget *rightTabWidget = new QTabWidget();
   rightTabWidget->setMinimumWidth(300);
   rightTabWidget->setMaximumWidth(700);
-  
+
   // Terminal tab
   QWidget *terminalTabWidget = new QWidget();
   QVBoxLayout *terminalLayout = new QVBoxLayout();
-  
+
   QPlainTextEdit *terminalWidget = new QPlainTextEdit();
 
-
-  
   // Terminal controls
   QHBoxLayout *terminalControlsLayout = new QHBoxLayout();
   QPushButton *clearTerminalButton = new QPushButton("Clear Terminal");
   QPushButton *saveLogButton = new QPushButton("Save Log");
-  
+
   terminalControlsLayout->addWidget(clearTerminalButton);
   terminalControlsLayout->addWidget(saveLogButton);
   terminalControlsLayout->addStretch();
-  
+
   terminalLayout->addWidget(terminalWidget);
   terminalLayout->addLayout(terminalControlsLayout);
   terminalTabWidget->setLayout(terminalLayout);
-  
+
   g_terminalWidget = terminalWidget;
-  
+
   logToTerminal("Terminal initialized");
-  
-  
 
   rightTabWidget->addTab(new TrackContextTab(), "Track");
   rightTabWidget->addTab(terminalTabWidget, "Terminal");
@@ -129,27 +124,8 @@ int main(int argc, char *argv[]) {
   // proportions (20% left, 50% center, 30% right)
   mainSplitter->setSizes({250, 500, 300});
 
-  QFrame *mediacontrol_frame = new QFrame();
-
-  QHBoxLayout *mediacontrols_hbox = new QHBoxLayout();
-  mediacontrol_frame->setLayout(mediacontrols_hbox);
-
-  mediacontrol_frame->setObjectName("mediacontrol");
-
-  QPushButton *playButton = new QPushButton("Play");
-  QPushButton *pauseButton = new QPushButton("Pause");
-  QPushButton *stopButton = new QPushButton("Stop");
-
-  QLabel *statusLabel = new QLabel("Ready");
-  statusLabel->setStyleSheet("QLabel { color: #666; font-style: italic; }");
-
-  mediacontrols_hbox->addWidget(playButton);
-  mediacontrols_hbox->addWidget(pauseButton);
-  mediacontrols_hbox->addWidget(stopButton);
-  mediacontrols_hbox->addWidget(statusLabel);
-
   vbox->addWidget(mainSplitter);
-  vbox->addWidget(mediacontrol_frame);
+  vbox->addWidget(new MediaControls());
 
   centralWidget->setLayout(vbox);
 
@@ -195,59 +171,36 @@ int main(int argc, char *argv[]) {
     }
   });
 
-  QObject::connect(playButton, &QPushButton::clicked,
-                   [&queue]() { 
-                     queue->play(); 
-                     logToTerminal("Play button clicked");
-                   });
-
   QObject::connect(fullScanAction, &QAction::triggered, [controller]() {
     logToTerminal("Starting library scan...");
     controller->scanLibrary();
   });
 
-  QObject::connect(controller, &Controller::scanLibraryUpdate,
-                   [statusLabel](const std::string &message) {
-                     QString qMessage = QString::fromStdString(message);
-                     statusLabel->setText(qMessage);
-                     logToTerminal(qMessage);
-                   });
-
-  QObject::connect(pauseButton, &QPushButton::clicked,
-                   [&queue]() { 
-                     queue->pause(); 
-                     logToTerminal("Pause button clicked");
-                   });
-
-  QObject::connect(stopButton, &QPushButton::clicked,
-                   [&queue]() { 
-                     queue->stop(); 
-                     logToTerminal("Stop button clicked");
-                   });
-
   // Terminal button connections
-  QObject::connect(clearTerminalButton, &QPushButton::clicked, [terminalWidget]() {
-    terminalWidget->clear();
-    logToTerminal("Terminal cleared");
-  });
-  
-  QObject::connect(saveLogButton, &QPushButton::clicked, [&window, terminalWidget]() {
-    QString fileName = QFileDialog::getSaveFileName(
-        &window, "Save Log File", QDir::homePath() + "/ssmp_log.txt",
-        "Text Files (*.txt);;All Files (*)");
-    
-    if (!fileName.isEmpty()) {
-      QFile file(fileName);
-      if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-        QTextStream stream(&file);
-        stream << terminalWidget->toPlainText();
-        file.close();
-        logToTerminal("Log saved to: " + fileName);
-      } else {
-        logToTerminal("Failed to save log file");
-      }
-    }
-  });
+  QObject::connect(clearTerminalButton, &QPushButton::clicked,
+                   [terminalWidget]() {
+                     terminalWidget->clear();
+                     logToTerminal("Terminal cleared");
+                   });
+
+  QObject::connect(
+      saveLogButton, &QPushButton::clicked, [&window, terminalWidget]() {
+        QString fileName = QFileDialog::getSaveFileName(
+            &window, "Save Log File", QDir::homePath() + "/ssmp_log.txt",
+            "Text Files (*.txt);;All Files (*)");
+
+        if (!fileName.isEmpty()) {
+          QFile file(fileName);
+          if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            QTextStream stream(&file);
+            stream << terminalWidget->toPlainText();
+            file.close();
+            logToTerminal("Log saved to: " + fileName);
+          } else {
+            logToTerminal("Failed to save log file");
+          }
+        }
+      });
 
   QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
   QObject::connect(fullscreenAction, &QAction::triggered, [&window]() {
@@ -261,7 +214,6 @@ int main(int argc, char *argv[]) {
   QObject::connect(minimizeAction, &QAction::triggered,
                    [&window]() { window.showMinimized(); });
 
-  
   window.showFullScreen();
   window.show();
 
