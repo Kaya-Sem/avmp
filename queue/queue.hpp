@@ -2,7 +2,6 @@
 #define QUEUE
 
 #include "qaudiooutput.h"
-#include "qlist.h"
 #include "qmediaplayer.h"
 #include "qobject.h"
 #include "queue_model.hpp"
@@ -15,9 +14,10 @@ class Queue : public QObject {
 
 public:
   explicit Queue(QObject *parent = nullptr);
-  
+
   // Get the model for the QListView
-  QueueModel* getModel();
+  QueueModel *getModel();
+  std::shared_ptr<Track> getCurrentTrack();
 
 signals:
 
@@ -31,7 +31,7 @@ public slots:
   void previous();
 
   /// amount of milliseconds to seek. Negative is backwards
-  void seek(int value);
+  void seek(int milliseconds);
   void play();
   void pause();
 

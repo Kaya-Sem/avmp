@@ -20,6 +20,9 @@ looping fragments, procedural remixes?
 - audio controls, speed, pitch, etc etc (sound manipulation tools)
 
 
+- Radar chart song characteristics
+
+
 Use algorithms (Louvain, K-means, spectral clustering) to:
 
 Auto-group similar tracks.

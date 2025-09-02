@@ -95,6 +95,11 @@ void Queue::stop() {
   player->stop(); 
 }
 
+std::shared_ptr<Track> Queue::getCurrentTrack() {
+  return queueModel->getTrack(index);
+
+}
+
 void Queue::clear() {
   player->stop();
   queueModel->clear();

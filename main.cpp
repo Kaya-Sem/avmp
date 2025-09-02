@@ -1,6 +1,7 @@
 #include "controller/controller.hpp"
 #include "library/library.hpp"
-#include "library/library_model.hpp"
+#include "context/player_context.hpp"
+#include "ui/tabs/collection_treeview_tab.hpp"
 #include "qframe.h"
 #include "qlabel.h"
 #include "queue/queue.hpp"
@@ -21,7 +22,29 @@
 #include <QUrl>
 #include <QVBoxLayout>
 #include <QWidget>
+#include <QTabWidget>
+#include <QTextEdit>
+#include <QPlainTextEdit>
+#include <QDateTime>
+#include <QFile>
+#include <QTextStream>
 #include <memory>
+
+// Global terminal widget for logging
+QPlainTextEdit* g_terminalWidget = nullptr;
+
+void logToTerminal(const QString& message) {
+    if (g_terminalWidget) {
+        QString timestamp = QDateTime::currentDateTime().toString("hh:mm:ss.zzz");
+        QString logMessage = QString("%1 %2").arg(timestamp, message);
+        g_terminalWidget->appendPlainText(logMessage);
+        
+        // Auto-scroll to bottom
+        QTextCursor cursor = g_terminalWidget->textCursor();
+        cursor.movePosition(QTextCursor::End);
+        g_terminalWidget->setTextCursor(cursor);
+    }
+}
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
@@ -29,33 +52,98 @@ int main(int argc, char *argv[]) {
   Controller *controller = new Controller(library);
 
   Queue *queue = new Queue();
+  auto ctx = PlayerContext::instance();
+  ctx->initialize(controller, library, queue);
 
   QMainWindow window;
-  window.setWindowTitle("ssmp");
+  window.setWindowTitle("avmp");
 
   QWidget *centralWidget = new QWidget;
   window.setCentralWidget(centralWidget);
 
   QVBoxLayout *vbox = new QVBoxLayout;
 
-  QSplitter *splitter = new QSplitter(Qt::Horizontal);
+  QSplitter *mainSplitter = new QSplitter(Qt::Horizontal);
+  
+  // Left tabbed pane
+  QTabWidget *leftTabWidget = new QTabWidget();
+  leftTabWidget->setMinimumWidth(250);
+  leftTabWidget->setMaximumWidth(700);
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
 
-  QTreeView *libraryTreeView = new QTreeView();
-  libraryTreeView->setModel(library->getModel());
-  libraryTreeView->setHeaderHidden(true);
-  libraryTreeView->setMinimumWidth(250);
-  libraryTreeView->setMaximumWidth(600);
-
-  // Main content area - QListView for queue
+  // Center content area - Queue list
   QListView *queueListView = new QListView();
   queueListView->setModel(queue->getModel());
 
-  // Add widgets to splitter
-  splitter->addWidget(libraryTreeView);
-  splitter->addWidget(queueListView);
+  // Right tabbed pane
+  QTabWidget *rightTabWidget = new QTabWidget();
+  rightTabWidget->setMinimumWidth(300);
+  rightTabWidget->setMaximumWidth(700);
+  
+  // Terminal tab
+  QWidget *terminalTabWidget = new QWidget();
+  QVBoxLayout *terminalLayout = new QVBoxLayout();
+  
+  QPlainTextEdit *terminalWidget = new QPlainTextEdit();
 
-  // Set splitter proportions (25% sidebar, 75% main)
-  splitter->setSizes({250, 750});
+
+  
+  // Terminal controls
+  QHBoxLayout *terminalControlsLayout = new QHBoxLayout();
+  QPushButton *clearTerminalButton = new QPushButton("Clear Terminal");
+  QPushButton *saveLogButton = new QPushButton("Save Log");
+  
+  terminalControlsLayout->addWidget(clearTerminalButton);
+  terminalControlsLayout->addWidget(saveLogButton);
+  terminalControlsLayout->addStretch();
+  
+  terminalLayout->addWidget(terminalWidget);
+  terminalLayout->addLayout(terminalControlsLayout);
+  terminalTabWidget->setLayout(terminalLayout);
+  
+  g_terminalWidget = terminalWidget;
+  
+  logToTerminal("Terminal initialized");
+  
+  rightTabWidget->addTab(terminalTabWidget, "Terminal");
+  
+  // Tab 2 - Queue Information
+  QWidget *tab2Widget = new QWidget();
+  QVBoxLayout *tab2Layout = new QVBoxLayout();
+  QLabel *tab2Label = new QLabel("Queue Information");
+  tab2Label->setStyleSheet("QLabel { font-weight: bold; font-size: 14pt; }");
+  tab2Label->setAlignment(Qt::AlignCenter);
+  
+  QLabel *queueStatusLabel = new QLabel("Queue Status: Empty");
+  QLabel *currentTrackLabel = new QLabel("Current Track: None");
+  QLabel *queueLengthLabel = new QLabel("Queue Length: 0");
+  
+  tab2Layout->addWidget(tab2Label);
+  tab2Layout->addWidget(queueStatusLabel);
+  tab2Layout->addWidget(currentTrackLabel);
+  tab2Layout->addWidget(queueLengthLabel);
+  tab2Layout->addStretch();
+  tab2Widget->setLayout(tab2Layout);
+  rightTabWidget->addTab(tab2Widget, "Queue Info");
+
+
+  mainSplitter->addWidget(leftTabWidget);
+  mainSplitter->addWidget(queueListView);
+  mainSplitter->addWidget(rightTabWidget);
+
+  // proportions (20% left, 50% center, 30% right)
+  mainSplitter->setSizes({250, 500, 300});
 
   QFrame *mediacontrol_frame = new QFrame();
 
@@ -63,14 +151,11 @@ int main(int argc, char *argv[]) {
   mediacontrol_frame->setLayout(mediacontrols_hbox);
 
   mediacontrol_frame->setObjectName("mediacontrol");
-  mediacontrol_frame->setStyleSheet(
-      "#mediacontrol { border: 2px solid black; }");
 
   QPushButton *playButton = new QPushButton("Play");
   QPushButton *pauseButton = new QPushButton("Pause");
   QPushButton *stopButton = new QPushButton("Stop");
 
-  // Add status label for library updates
   QLabel *statusLabel = new QLabel("Ready");
   statusLabel->setStyleSheet("QLabel { color: #666; font-style: italic; }");
 
@@ -79,7 +164,7 @@ int main(int argc, char *argv[]) {
   mediacontrols_hbox->addWidget(stopButton);
   mediacontrols_hbox->addWidget(statusLabel);
 
-  vbox->addWidget(splitter);
+  vbox->addWidget(mainSplitter);
   vbox->addWidget(mediacontrol_frame);
 
   centralWidget->setLayout(vbox);
@@ -111,6 +196,7 @@ int main(int argc, char *argv[]) {
 
     std::shared_ptr<Track> track = std::make_shared<Track>(musicFile);
     queue->playNow(track);
+    logToTerminal("Playing test song: " + musicFile);
   });
 
   QObject::connect(openAction, &QAction::triggered, [&window, queue]() {
@@ -121,25 +207,63 @@ int main(int argc, char *argv[]) {
     if (!fileName.isEmpty()) {
       std::shared_ptr<Track> track = std::make_shared<Track>(fileName);
       queue->playNow(track);
+      logToTerminal("Opened and queued audio file: " + fileName);
     }
   });
 
   QObject::connect(playButton, &QPushButton::clicked,
-                   [&queue]() { queue->play(); });
+                   [&queue]() { 
+                     queue->play(); 
+                     logToTerminal("Play button clicked");
+                   });
 
-  QObject::connect(fullScanAction, &QAction::triggered, controller,
-                   &Controller::scanLibrary);
+  QObject::connect(fullScanAction, &QAction::triggered, [controller]() {
+    logToTerminal("Starting library scan...");
+    controller->scanLibrary();
+  });
 
   QObject::connect(controller, &Controller::scanLibraryUpdate,
                    [statusLabel](const std::string &message) {
-                     statusLabel->setText(QString::fromStdString(message));
+                     QString qMessage = QString::fromStdString(message);
+                     statusLabel->setText(qMessage);
+                     logToTerminal(qMessage);
                    });
 
   QObject::connect(pauseButton, &QPushButton::clicked,
-                   [&queue]() { queue->pause(); });
+                   [&queue]() { 
+                     queue->pause(); 
+                     logToTerminal("Pause button clicked");
+                   });
 
   QObject::connect(stopButton, &QPushButton::clicked,
-                   [&queue]() { queue->stop(); });
+                   [&queue]() { 
+                     queue->stop(); 
+                     logToTerminal("Stop button clicked");
+                   });
+
+  // Terminal button connections
+  QObject::connect(clearTerminalButton, &QPushButton::clicked, [terminalWidget]() {
+    terminalWidget->clear();
+    logToTerminal("Terminal cleared");
+  });
+  
+  QObject::connect(saveLogButton, &QPushButton::clicked, [&window, terminalWidget]() {
+    QString fileName = QFileDialog::getSaveFileName(
+        &window, "Save Log File", QDir::homePath() + "/ssmp_log.txt",
+        "Text Files (*.txt);;All Files (*)");
+    
+    if (!fileName.isEmpty()) {
+      QFile file(fileName);
+      if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QTextStream stream(&file);
+        stream << terminalWidget->toPlainText();
+        file.close();
+        logToTerminal("Log saved to: " + fileName);
+      } else {
+        logToTerminal("Failed to save log file");
+      }
+    }
+  });
 
   QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
   QObject::connect(fullscreenAction, &QAction::triggered, [&window]() {
@@ -153,36 +277,7 @@ int main(int argc, char *argv[]) {
   QObject::connect(minimizeAction, &QAction::triggered,
                    [&window]() { window.showMinimized(); });
 
-  // Connect tree view double-click to play track
-  QObject::connect(
-      libraryTreeView, &QTreeView::doubleClicked,
-      [libraryTreeView, &queue](const QModelIndex &index) {
-        QStandardItemModel *model =
-            qobject_cast<QStandardItemModel *>(libraryTreeView->model());
-        if (!model)
-          return;
-
-        QStandardItem *item = model->itemFromIndex(index);
-        if (!item)
-          return;
-
-        // - No parent = Artist (top level)
-        // - Parent has no parent = Album
-        // - Parent's parent exists = Track
-        QStandardItem *parent = item->parent();
-        bool isTrack = parent && parent->parent();
-
-        if (isTrack) {
-          TrackItem *trackItem = static_cast<TrackItem *>(item);
-          QString filePath = trackItem->getFilePath();
-          if (!filePath.isEmpty()) {
-
-            std::shared_ptr<Track> track = std::make_shared<Track>(filePath);
-            queue->playNow(track);
-          }
-        }
-      });
-
+  
   window.showFullScreen();
   window.show();
 

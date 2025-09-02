@@ -28,7 +28,7 @@ void Controller::scanLibrary() {
                                                ".m4a"};
 
   for (const auto &entry :
-       fs::recursive_directory_iterator("/home/kayasem/Music/Library")) {
+       fs::recursive_directory_iterator("/home/kayasem/Music")) {
     if (entry.is_regular_file()) {
       std::string ext = entry.path().extension().string();
       for (const auto &music_ext : extentions) {
