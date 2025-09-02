@@ -8,6 +8,7 @@
 #include "qtreeview.h"
 #include "qwidget.h"
 #include "track/track.hpp"
+
 class CollectionTreeviewTab : public QWidget {
 
 public:

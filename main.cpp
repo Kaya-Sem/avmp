@@ -2,6 +2,7 @@
 #include "library/library.hpp"
 #include "context/player_context.hpp"
 #include "ui/tabs/collection_treeview_tab.hpp"
+#include "ui/tabs/track_context_tab.hpp"
 #include "qframe.h"
 #include "qlabel.h"
 #include "queue/queue.hpp"
@@ -116,27 +117,10 @@ int main(int argc, char *argv[]) {
   
   logToTerminal("Terminal initialized");
   
-  rightTabWidget->addTab(terminalTabWidget, "Terminal");
   
-  // Tab 2 - Queue Information
-  QWidget *tab2Widget = new QWidget();
-  QVBoxLayout *tab2Layout = new QVBoxLayout();
-  QLabel *tab2Label = new QLabel("Queue Information");
-  tab2Label->setStyleSheet("QLabel { font-weight: bold; font-size: 14pt; }");
-  tab2Label->setAlignment(Qt::AlignCenter);
-  
-  QLabel *queueStatusLabel = new QLabel("Queue Status: Empty");
-  QLabel *currentTrackLabel = new QLabel("Current Track: None");
-  QLabel *queueLengthLabel = new QLabel("Queue Length: 0");
-  
-  tab2Layout->addWidget(tab2Label);
-  tab2Layout->addWidget(queueStatusLabel);
-  tab2Layout->addWidget(currentTrackLabel);
-  tab2Layout->addWidget(queueLengthLabel);
-  tab2Layout->addStretch();
-  tab2Widget->setLayout(tab2Layout);
-  rightTabWidget->addTab(tab2Widget, "Queue Info");
 
+  rightTabWidget->addTab(new TrackContextTab(), "Track");
+  rightTabWidget->addTab(terminalTabWidget, "Terminal");
 
   mainSplitter->addWidget(leftTabWidget);
   mainSplitter->addWidget(queueListView);
