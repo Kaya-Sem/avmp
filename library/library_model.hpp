@@ -7,6 +7,7 @@
 #include "qstandarditemmodel.h"
 #include "track/track.hpp"
 #include <memory>
+#include <QList>
 
 class LibraryItem : public QStandardItem {
 public:
@@ -20,6 +21,9 @@ public:
   virtual ~LibraryItem() = default;
   
   virtual Type getType() const = 0;
+  
+  // Helper method to collect all tracks from this item and its children
+  virtual QList<std::shared_ptr<Track>> getAllTracks() const = 0;
 };
 
 class ArtistItem : public LibraryItem {
@@ -31,6 +35,22 @@ public:
   }
 
   Type getType() const override { return Type::Artist; }
+  QList<std::shared_ptr<Track>> getAllTracks() const override {
+    QList<std::shared_ptr<Track>> tracks;
+    
+    // Iterate through all albums (children of this artist)
+    for (int i = 0; i < rowCount(); ++i) {
+      QStandardItem *albumItem = child(i);
+      if (albumItem) {
+        LibraryItem *libraryAlbumItem = dynamic_cast<LibraryItem *>(albumItem);
+        if (libraryAlbumItem) {
+          tracks.append(libraryAlbumItem->getAllTracks());
+        }
+      }
+    }
+    
+    return tracks;
+  }
   std::shared_ptr<Artist> getArtist() const { return artistPtr; }
   const QString getArtistName() const {
     return artistPtr ? QString::fromStdString(artistPtr->name)
@@ -51,6 +71,24 @@ public:
   }
 
   Type getType() const override { return Type::Album; }
+  QList<std::shared_ptr<Track>> getAllTracks() const override {
+    QList<std::shared_ptr<Track>> tracks;
+    
+    // Iterate through all tracks (children of this album)
+    for (int i = 0; i < rowCount(); ++i) {
+      QStandardItem *trackItem = child(i);
+      if (trackItem) {
+        LibraryItem *libraryTrackItem = dynamic_cast<LibraryItem *>(trackItem);
+        if (libraryTrackItem && libraryTrackItem->getType() == Type::Track) {
+          // Use the virtual method instead of casting to specific type
+          QList<std::shared_ptr<Track>> childTracks = libraryTrackItem->getAllTracks();
+          tracks.append(childTracks);
+        }
+      }
+    }
+    
+    return tracks;
+  }
   std::shared_ptr<Album> getAlbum() const { return albumPtr; }
   std::shared_ptr<Artist> getArtist() const { return artistPtr; }
   const QString getAlbumName() const {
@@ -74,6 +112,13 @@ public:
   }
 
   Type getType() const override { return Type::Track; }
+  QList<std::shared_ptr<Track>> getAllTracks() const override {
+    QList<std::shared_ptr<Track>> tracks;
+    if (trackPtr) {
+      tracks.append(trackPtr);
+    }
+    return tracks;
+  }
   std::shared_ptr<Track> getTrack() const { return trackPtr; }
   const QString getFilePath() const {
     return trackPtr ? QString::fromStdString(trackPtr->fullPath) : "";

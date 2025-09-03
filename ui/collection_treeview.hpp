@@ -55,12 +55,28 @@ private:
               }
               break;
             }
-            case LibraryItem::Type::Album:
-              // TODO: Handle album double-click (e.g., play all tracks in album)
+            case LibraryItem::Type::Album: {
+              AlbumItem *albumItem = static_cast<AlbumItem *>(libraryItem);
+              QList<std::shared_ptr<Track>> tracks = albumItem->getAllTracks();
+              
+              if (!tracks.isEmpty()) {
+                for (const auto &track : tracks) {
+                  queue->appendTrack(track);
+                }
+              }
               break;
-            case LibraryItem::Type::Artist:
-              // TODO: Handle artist double-click (e.g., play all tracks by artist)
+            }
+            case LibraryItem::Type::Artist: {
+              ArtistItem *artistItem = static_cast<ArtistItem *>(libraryItem);
+              QList<std::shared_ptr<Track>> tracks = artistItem->getAllTracks();
+              
+              if (!tracks.isEmpty()) {
+                for (const auto &track : tracks) {
+                  queue->appendTrack(track);
+                }
+              }
               break;
+            }
           }
         });
   }
