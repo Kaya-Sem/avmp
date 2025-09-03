@@ -18,6 +18,7 @@ public:
   // Get the model for the QListView
   QueueModel *getModel();
   std::shared_ptr<Track> getCurrentTrack();
+  QMediaPlayer* getPlayer() const { return player; }
 
 signals:
 

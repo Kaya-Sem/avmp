@@ -3,37 +3,41 @@
 
 #include "context/player_context.hpp"
 #include <QHBoxLayout>
+#include <QLabel>
 #include <QPushButton>
+#include <QSlider>
+#include <QVBoxLayout>
 #include <QWidget>
 
 // MediaControls defines the GUI component responsible for displaying playback controls and the seek indicator
 class MediaControls : public QWidget {
+  Q_OBJECT
 
 public:
   explicit MediaControls(QWidget *parent = nullptr) : QWidget(parent) {
-    QHBoxLayout *layout = new QHBoxLayout();
+    setupUI();
+    connectSignals();
+  }
 
-    QPushButton *playButton = new QPushButton("Play");
-    QPushButton *pauseButton = new QPushButton("Pause");
-    QPushButton *stopButton = new QPushButton("Stop");
+private slots:
+  void onPositionChanged(qint64 position);
+  void onDurationChanged(qint64 duration);
+  void onSliderMoved(int position);
 
-    layout->addWidget(playButton);
-    layout->addWidget(pauseButton);
-    layout->addWidget(stopButton);
-
-    Queue *queue = PlayerContext::instance()->queue();
-
-    QObject::connect(playButton, &QPushButton::clicked,
-                     [&queue]() { queue->play(); });
-
-    QObject::connect(stopButton, &QPushButton::clicked,
-                     [&queue]() { queue->stop(); });
-
-    QObject::connect(pauseButton, &QPushButton::clicked,
-                     [&queue]() { queue->pause(); });
-
-    setLayout(layout);
-  };
+private:
+  void setupUI();
+  void connectSignals();
+  
+  QSlider *positionSlider;
+  QLabel *timeLabel;
+  QPushButton *playButton;
+  QPushButton *pauseButton;
+  QPushButton *stopButton;
+  QPushButton *previousButton;
+  QPushButton *nextButton;
+  
+  Queue *queue;
+  bool isSliderBeingDragged = false;
 };
 
 #endif // !MEDIACONTROL

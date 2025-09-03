@@ -17,7 +17,8 @@ SOURCES += main.cpp \
            library/library_model.cpp \
            queue/queue.cpp \
            queue/queue_model.cpp \
-           context/player_context.cpp
+           context/player_context.cpp \
+           ui/mediacontrol/mediacontrol.cpp
 
 HEADERS += controller/controller.hpp \
            library/library.hpp \
@@ -26,6 +27,7 @@ HEADERS += controller/controller.hpp \
            queue/queue_model.hpp \
            track/track.hpp \
            context/player_context.hpp \
-           ui/collection_treeview.hpp
+           ui/collection_treeview.hpp \
+           ui/mediacontrol/mediacontrol.hpp
 
 LIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil -lopenjp2 -ltag
