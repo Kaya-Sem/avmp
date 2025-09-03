@@ -39,19 +39,28 @@ private:
           if (!item)
             return;
 
-          // - No parent = Artist (top level)
-          // - Parent has no parent = Album
-          // - Parent's parent exists = Track
-          QStandardItem *parent = item->parent();
-          bool isTrack = parent && parent->parent();
+          // Cast to LibraryItem to use the abstract base class
+          LibraryItem *libraryItem = dynamic_cast<LibraryItem *>(item);
+          if (!libraryItem)
+            return;
 
-          if (isTrack) {
-            TrackItem *trackItem = static_cast<TrackItem *>(item);
-            QString filePath = trackItem->getFilePath();
-            if (!filePath.isEmpty()) {
-              std::shared_ptr<Track> track = std::make_shared<Track>(filePath);
-              queue->playNow(track);
+          // Use getType() to determine the item type and handle accordingly
+          switch (libraryItem->getType()) {
+            case LibraryItem::Type::Track: {
+              TrackItem *trackItem = static_cast<TrackItem *>(libraryItem);
+              QString filePath = trackItem->getFilePath();
+              if (!filePath.isEmpty()) {
+                std::shared_ptr<Track> track = std::make_shared<Track>(filePath);
+                queue->playNow(track);
+              }
+              break;
             }
+            case LibraryItem::Type::Album:
+              // TODO: Handle album double-click (e.g., play all tracks in album)
+              break;
+            case LibraryItem::Type::Artist:
+              // TODO: Handle artist double-click (e.g., play all tracks by artist)
+              break;
           }
         });
   }

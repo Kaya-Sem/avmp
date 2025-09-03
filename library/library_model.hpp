@@ -8,14 +8,29 @@
 #include "track/track.hpp"
 #include <memory>
 
-class ArtistItem : public QStandardItem {
+class LibraryItem : public QStandardItem {
+public:
+  enum class Type {
+    Artist,
+    Album,
+    Track
+  };
+
+  explicit LibraryItem(const QString &text) : QStandardItem(text) {}
+  virtual ~LibraryItem() = default;
+  
+  virtual Type getType() const = 0;
+};
+
+class ArtistItem : public LibraryItem {
 public:
   explicit ArtistItem(std::shared_ptr<Artist> artist)
-      : QStandardItem(
+      : LibraryItem(
             QString::fromStdString(artist ? artist->name : "Unknown Artist")),
         artistPtr(artist) {
   }
 
+  Type getType() const override { return Type::Artist; }
   std::shared_ptr<Artist> getArtist() const { return artistPtr; }
   const QString getArtistName() const {
     return artistPtr ? QString::fromStdString(artistPtr->name)
@@ -26,15 +41,16 @@ private:
   std::shared_ptr<Artist> artistPtr;
 };
 
-class AlbumItem : public QStandardItem {
+class AlbumItem : public LibraryItem {
 public:
   explicit AlbumItem(std::shared_ptr<Album> album,
                      std::shared_ptr<Artist> artist)
-      : QStandardItem(
+      : LibraryItem(
             QString::fromStdString(album ? album->getName() : "Unknown Album")),
         albumPtr(album), artistPtr(artist) {
   }
 
+  Type getType() const override { return Type::Album; }
   std::shared_ptr<Album> getAlbum() const { return albumPtr; }
   std::shared_ptr<Artist> getArtist() const { return artistPtr; }
   const QString getAlbumName() const {
@@ -51,12 +67,13 @@ private:
   std::shared_ptr<Artist> artistPtr;
 };
 
-class TrackItem : public QStandardItem {
+class TrackItem : public LibraryItem {
 public:
   explicit TrackItem(std::shared_ptr<Track> track)
-      : QStandardItem(getDisplayTitle(track)), trackPtr(track) {
+      : LibraryItem(getDisplayTitle(track)), trackPtr(track) {
   }
 
+  Type getType() const override { return Type::Track; }
   std::shared_ptr<Track> getTrack() const { return trackPtr; }
   const QString getFilePath() const {
     return trackPtr ? QString::fromStdString(trackPtr->fullPath) : "";
