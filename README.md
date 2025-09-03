@@ -2,7 +2,8 @@
 
 > an experimental audiophile music player
 
-<img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/788e2655-f417-44dc-aa6a-a2a5479224d9" />
+<img width="2880" height="1800" alt="music player screenshot" src="https://github.com/user-attachments/assets/48ef6f06-72f6-4634-9c88-7b1f6717df2b" />
+
 
 (very much in the works)
 
