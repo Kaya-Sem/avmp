@@ -5,6 +5,8 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QWidget>
+
+// MediaControls defines the GUI component responsible for displaying playback controls and the seek indicator
 class MediaControls : public QWidget {
 
 public:

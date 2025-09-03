@@ -1,7 +1,9 @@
 #include "context/player_context.hpp"
 #include "controller/controller.hpp"
 #include "library/library.hpp"
+#include "qlistview.h"
 #include "queue/queue.hpp"
+#include "qwidget.h"
 #include "ui/mediacontrol/mediacontrol.hpp"
 #include "ui/tabs/collection_treeview_tab.hpp"
 #include "ui/tabs/track_context_tab.hpp"
@@ -70,26 +72,24 @@ int main(int argc, char *argv[]) {
   leftTabWidget->setMinimumWidth(250);
   leftTabWidget->setMaximumWidth(700);
   leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
-  leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
+
+  QListView * playlistList = new QListView();
+  leftTabWidget->addTab(playlistList, "Playlists");
+
+
+  QTabWidget * centerPanel = new QTabWidget();
 
   // Center content area - Queue list
   QListView *queueListView = new QListView();
   queueListView->setModel(queue->getModel());
+  centerPanel->addTab(queueListView, "Queue");
+  centerPanel->addTab(new QWidget(), "Lovely Rock");
 
   // Right tabbed pane
   QTabWidget *rightTabWidget = new QTabWidget();
   rightTabWidget->setMinimumWidth(300);
   rightTabWidget->setMaximumWidth(700);
+
 
   // Terminal tab
   QWidget *terminalTabWidget = new QWidget();
@@ -118,7 +118,7 @@ int main(int argc, char *argv[]) {
   rightTabWidget->addTab(terminalTabWidget, "Terminal");
 
   mainSplitter->addWidget(leftTabWidget);
-  mainSplitter->addWidget(queueListView);
+  mainSplitter->addWidget(centerPanel);
   mainSplitter->addWidget(rightTabWidget);
 
   // proportions (20% left, 50% center, 30% right)

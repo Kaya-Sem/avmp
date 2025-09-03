@@ -18,6 +18,7 @@ genre, mood, artist... Could be used for smart playlists
 - nonlinear playback? fractal playback order, time stretching,
 looping fragments, procedural remixes?
 - audio controls, speed, pitch, etc etc (sound manipulation tools)
+- simple charts like radar charts for characteristics
 
 
 - Radar chart song characteristics

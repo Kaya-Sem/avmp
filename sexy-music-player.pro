@@ -25,6 +25,7 @@ HEADERS += controller/controller.hpp \
            queue/queue.hpp \
            queue/queue_model.hpp \
            track/track.hpp \
-           context/player_context.hpp
+           context/player_context.hpp \
+           ui/collection_treeview.hpp
 
 LIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil -lopenjp2 -ltag
