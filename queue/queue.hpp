@@ -19,6 +19,9 @@ public:
   QueueModel *getModel();
   std::shared_ptr<Track> getCurrentTrack();
   QMediaPlayer* getPlayer() const { return player; }
+  
+  int getCurrentIndex() const { return index; }
+  void playAt(int trackIndex);
 
 signals:
 
@@ -26,7 +29,7 @@ signals:
   void playbackPaused();
   void playbackStopped();
   void positionChanged();
-  void trackChanged();
+  void currentIndexChanged(int newIndex);
 
 public slots:
   void next();
@@ -50,6 +53,9 @@ public slots:
   /// Clears the entire queue, which means emptying the vector
   void clear();
 
+private slots:
+  void onPlaybackStateChanged(QMediaPlayer::PlaybackState state);
+
 private:
   /// Represents the currently selected/playing song in the queue. -1 means
   /// nothing selected.
@@ -58,6 +64,9 @@ private:
 
   QMediaPlayer *player;
   QAudioOutput *audioOutput;
+  
+  // Flag to prevent auto-advance when manually changing tracks
+  bool isManualAdvance = false;
 };
 
 #endif // !QUEUE

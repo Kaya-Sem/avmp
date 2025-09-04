@@ -28,48 +28,21 @@ QVariant QueueModel::data(const QModelIndex &index, int role) const {
                 QFileInfo fileInfo(QString::fromStdString(track->fullPath));
                 return fileInfo.baseName();
             }
+        case CurrentTrackRole:
+            return index.row() == currentIndex;
         default:
             return QVariant();
     }
 }
 
-QString QueueModel::getTrackTitle(int index) const {
-    if (index < 0 || index >= tracks.size()) {
-        return QString();
-    }
-    
-    const auto &track = tracks.at(index);
-    if (!track->title.empty()) {
-        return QString::fromStdString(track->title);
-    } else {
-        QFileInfo fileInfo(QString::fromStdString(track->fullPath));
-        return fileInfo.baseName();
-    }
+QHash<int, QByteArray> QueueModel::roleNames() const {
+    QHash<int, QByteArray> roles;
+    roles[DisplayRole] = "display";
+    roles[CurrentTrackRole] = "isCurrentTrack";
+    return roles;
 }
 
-QString QueueModel::getTrackArtist(int index) const {
-    if (index < 0 || index >= tracks.size()) {
-        return QString();
-    }
-    
-    return QString::fromStdString(tracks.at(index)->artist);
-}
 
-QString QueueModel::getTrackAlbum(int index) const {
-    if (index < 0 || index >= tracks.size()) {
-        return QString();
-    }
-    
-    return QString::fromStdString(tracks.at(index)->album);
-}
-
-QString QueueModel::getTrackPath(int index) const {
-    if (index < 0 || index >= tracks.size()) {
-        return QString();
-    }
-    
-    return QString::fromStdString(tracks.at(index)->fullPath);
-}
 
 std::shared_ptr<Track> QueueModel::getTrack(int index) const {
     if (index < 0 || index >= tracks.size()) {
@@ -85,7 +58,7 @@ void QueueModel::appendTrack(std::shared_ptr<Track> track) {
     endInsertRows();
 }
 
-void QueueModel::insertTrack(int index, std::shared_ptr<Track> track) {
+void QueueModel::insertTrack(std::shared_ptr<Track> track, int index) {
     if (index < 0 || index > tracks.size()) {
         return;
     }
@@ -108,7 +81,25 @@ void QueueModel::removeTrack(int index) {
 void QueueModel::clear() {
     beginResetModel();
     tracks.clear();
+    currentIndex = -1;
     endResetModel();
+}
+
+void QueueModel::setCurrentIndex(int index) {
+    if (index != currentIndex) {
+        int oldIndex = currentIndex;
+        currentIndex = index;
+        
+        // Emit dataChanged for both the old and new current tracks
+        if (oldIndex >= 0 && oldIndex < tracks.size()) {
+            QModelIndex oldModelIndex = createIndex(oldIndex, 0);
+            emit dataChanged(oldModelIndex, oldModelIndex, {CurrentTrackRole});
+        }
+        if (currentIndex >= 0 && currentIndex < tracks.size()) {
+            QModelIndex newModelIndex = createIndex(currentIndex, 0);
+            emit dataChanged(newModelIndex, newModelIndex, {CurrentTrackRole});
+        }
+    }
 }
 
 const QList<std::shared_ptr<Track>>& QueueModel::getTrackList() const {

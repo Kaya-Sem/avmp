@@ -5,6 +5,7 @@
 #include "queue/queue.hpp"
 #include "qwidget.h"
 #include "ui/mediacontrol/mediacontrol.hpp"
+#include "ui/queue_listview.hpp"
 #include "ui/tabs/collection_treeview_tab.hpp"
 #include "ui/tabs/track_context_tab.hpp"
 #include <QApplication>
@@ -80,8 +81,7 @@ int main(int argc, char *argv[]) {
   QTabWidget * centerPanel = new QTabWidget();
 
   // Center content area - Queue list
-  QListView *queueListView = new QListView();
-  queueListView->setModel(queue->getModel());
+  QueueListView *queueListView = new QueueListView();
   centerPanel->addTab(queueListView, "Queue");
   centerPanel->addTab(new QWidget(), "Lovely Rock");
 
