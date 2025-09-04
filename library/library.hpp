@@ -3,6 +3,7 @@
 
 #include "library/album.hpp"
 #include "library/artist.hpp"
+#include "library/playlist.hpp"
 #include "track/track.hpp"
 #include <QObject>
 #include <QStandardItem>
@@ -21,13 +22,21 @@ public:
                           std::shared_ptr<Album> album);
   void addTrackToAlbum(QStandardItem *albumItem, std::shared_ptr<Track> track);
 
-  QStandardItemModel *getModel() const;
+  QStandardItemModel *getTreeModel() const;
 
   /// Completely clears the librarys TreeModel
   void clear();
 
 private:
-  QStandardItemModel *model;
+  QStandardItemModel *treeModel;
+
+  QList<std::shared_ptr<Album>> allAlbums;
+  QList<std::shared_ptr<Artist>> allArtists;
+  QList<std::shared_ptr<Track>> allTracks;
+
+  QList<std::shared_ptr<Playlist>> allPlaylists;
+
+  
 
   QStandardItem *findOrCreateArtist(const std::string &artistName);
   QStandardItem *findOrCreateAlbum(QStandardItem *artistItem,

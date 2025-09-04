@@ -136,9 +136,7 @@ int main(int argc, char *argv[]) {
 
   // File menu
   QMenu *fileMenu = menuBar->addMenu("&File");
-  QAction *newAction = fileMenu->addAction("&New");
   QAction *openAction = fileMenu->addAction("&Open");
-  QAction *saveAction = fileMenu->addAction("&Save");
   fileMenu->addSeparator();
   QAction *exitAction = fileMenu->addAction("E&xit");
 
