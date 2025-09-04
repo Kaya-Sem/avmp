@@ -18,6 +18,7 @@ SOURCES += main.cpp \
            queue/queue.cpp \
            queue/queue_model.cpp \
            context/player_context.cpp \
+           ui/settings_window.cpp \
            ui/mediacontrol/mediacontrol.cpp
 
 HEADERS += controller/controller.hpp \
@@ -28,6 +29,8 @@ HEADERS += controller/controller.hpp \
            track/track.hpp \
            context/player_context.hpp \
            ui/collection_treeview.hpp \
+           ui/queue_listview.hpp \
+           ui/settings_window.hpp \
            ui/mediacontrol/mediacontrol.hpp
 
 LIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil -lopenjp2 -ltag

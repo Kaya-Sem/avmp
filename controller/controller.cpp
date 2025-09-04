@@ -14,6 +14,12 @@ namespace fs = std::filesystem;
 
 Controller::Controller(Library *library, QObject *parent) : QObject(parent) {
   this->library = library;
+  // Set default library path
+  libraryPaths.append("/home/kayasem/Music");
+}
+
+void Controller::setLibraryPaths(const QStringList &paths) {
+  libraryPaths = paths;
 }
 
 void Controller::scanLibrary() {
@@ -27,17 +33,23 @@ void Controller::scanLibrary() {
   const std::vector<std::string> extentions = {".mp3", ".flac", ".wav", ".ogg",
                                                ".m4a"};
 
-  for (const auto &entry :
-       fs::recursive_directory_iterator("/home/kayasem/Music")) {
-    if (entry.is_regular_file()) {
-      std::string ext = entry.path().extension().string();
-      for (const auto &music_ext : extentions) {
-        if (ext == music_ext) {
-          music_files.push_back(entry.path());
-
-          break;
+  // Scan all configured library paths
+  for (const QString &libraryPath : libraryPaths) {
+    try {
+      for (const auto &entry : fs::recursive_directory_iterator(libraryPath.toStdString())) {
+        if (entry.is_regular_file()) {
+          std::string ext = entry.path().extension().string();
+          for (const auto &music_ext : extentions) {
+            if (ext == music_ext) {
+              music_files.push_back(entry.path());
+              break;
+            }
+          }
         }
       }
+    } catch (const fs::filesystem_error &e) {
+      emit scanLibraryUpdate("Error scanning path: " + libraryPath.toStdString() + 
+                           " - " + e.what());
     }
   }
 

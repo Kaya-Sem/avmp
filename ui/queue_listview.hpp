@@ -18,6 +18,7 @@ private:
   void setupListView() {
     setModel(PlayerContext::instance()->queue()->getModel());
     setSelectionMode(QAbstractItemView::SingleSelection);
+    setFrameStyle(QFrame::NoFrame);
   }
 
   void connectSignals() {

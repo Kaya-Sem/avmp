@@ -6,6 +6,7 @@
 #include "qwidget.h"
 #include "ui/mediacontrol/mediacontrol.hpp"
 #include "ui/queue_listview.hpp"
+#include "ui/settings_window.hpp"
 #include "ui/tabs/collection_treeview_tab.hpp"
 #include "ui/tabs/track_context_tab.hpp"
 #include <QApplication>
@@ -75,6 +76,7 @@ int main(int argc, char *argv[]) {
   leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
 
   QListView * playlistList = new QListView();
+  playlistList->setFrameStyle(QFrame::NoFrame);
   leftTabWidget->addTab(playlistList, "Playlists");
 
 
@@ -83,13 +85,13 @@ int main(int argc, char *argv[]) {
   // Center content area - Queue list
   QueueListView *queueListView = new QueueListView();
   centerPanel->addTab(queueListView, "Queue");
-  centerPanel->addTab(new QWidget(), "Lovely Rock");
+  QWidget * rockplaylist = new QWidget();
+  centerPanel->addTab(rockplaylist, "Lovely Rock");
 
   // Right tabbed pane
   QTabWidget *rightTabWidget = new QTabWidget();
   rightTabWidget->setMinimumWidth(300);
   rightTabWidget->setMaximumWidth(700);
-
 
   // Terminal tab
   QWidget *terminalTabWidget = new QWidget();
@@ -151,6 +153,10 @@ int main(int argc, char *argv[]) {
   QAction *fullscreenAction = viewMenu->addAction("&Fullscreen");
   QAction *minimizeAction = viewMenu->addAction("&Minimize");
 
+  // Tools menu
+  QMenu *toolsMenu = menuBar->addMenu("&Tools");
+  QAction *settingsAction = toolsMenu->addAction("&Settings");
+
   QObject::connect(cutAction, &QAction::triggered, [&queue]() {
     QString musicFile = "/home/kayasem/Music/Library/song.mp3";
 
@@ -174,6 +180,17 @@ int main(int argc, char *argv[]) {
   QObject::connect(fullScanAction, &QAction::triggered, [controller]() {
     logToTerminal("Starting library scan...");
     controller->scanLibrary();
+  });
+
+  QObject::connect(settingsAction, &QAction::triggered, [&window, controller]() {
+    SettingsWindow settingsWindow(&window);
+    settingsWindow.setLibraryPaths(controller->getLibraryPaths());
+    
+    if (settingsWindow.exec() == QDialog::Accepted) {
+      QStringList libraryPaths = settingsWindow.getLibraryPaths();
+      controller->setLibraryPaths(libraryPaths);
+      logToTerminal("Settings saved. Library paths: " + libraryPaths.join(", "));
+    }
   });
 
   // Terminal button connections
