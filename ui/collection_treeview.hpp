@@ -18,10 +18,11 @@ public:
 
 private:
   void setupTreeView() {
-    setModel(PlayerContext::instance()->library()->getModel());
+    setModel(PlayerContext::instance()->library()->getTreeModel());
     setHeaderHidden(true);
     setMinimumWidth(250);
     setMaximumWidth(700);
+    setIconSize(QSize(64, 64));
   }
 
   void connectSignals() {
@@ -40,7 +41,7 @@ private:
             return;
 
           // Cast to LibraryItem to use the abstract base class
-          LibraryItem *libraryItem = dynamic_cast<LibraryItem *>(item);
+          LibraryItem *libraryItem = static_cast<LibraryItem *>(item);
           if (!libraryItem)
             return;
 

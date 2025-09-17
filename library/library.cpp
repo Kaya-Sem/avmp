@@ -4,7 +4,7 @@
 #include <QVariant>
 
 Library::Library(QObject *parent) : QObject(parent) {
-  model = new QStandardItemModel(this);
+  treeModel = new QStandardItemModel(this);
 }
 
 void Library::addTrack(std::shared_ptr<Track> track) {
@@ -14,6 +14,16 @@ void Library::addTrack(std::shared_ptr<Track> track) {
   QStandardItem *artistItem = findOrCreateArtist(track->artist);
   QStandardItem *albumItem = findOrCreateAlbum(artistItem, track->album);
 
+  // Update the album's year if this track has a valid year and the album doesn't
+  AlbumItem *albumItemPtr = static_cast<AlbumItem *>(albumItem);
+  if (albumItemPtr && albumItemPtr->getAlbum()) {
+    if (albumItemPtr->getAlbum()->getYear() == 0 && track->year > 0) {
+      albumItemPtr->getAlbum()->setYear(track->year);
+      // Update the display text to show the year
+      albumItemPtr->updateDisplayText();
+    }
+  }
+
   addTrackToAlbum(albumItem, track);
 }
 
@@ -22,7 +32,7 @@ QStandardItem *Library::addArtist(std::shared_ptr<Artist> artist) {
     return nullptr;
 
   ArtistItem *item = new ArtistItem(artist);
-  model->appendRow(item);
+  treeModel->appendRow(item);
   return item;
 }
 
@@ -47,19 +57,27 @@ void Library::addTrackToAlbum(QStandardItem *albumItem,
 
   TrackItem *trackItem = new TrackItem(track);
   albumItem->appendRow(trackItem);
+  
+  // If this is the first track added to the album, update the album artwork
+  if (albumItem->rowCount() == 1) {
+    AlbumItem *albumItemPtr = static_cast<AlbumItem *>(albumItem);
+    if (albumItemPtr) {
+      albumItemPtr->updateAlbumArtwork();
+    }
+  }
 }
 
-QStandardItemModel *Library::getModel() const { return model; }
+QStandardItemModel *Library::getTreeModel() const { return treeModel; }
 
-void Library::clear() { model->clear(); }
+void Library::clear() { treeModel->clear(); }
 
 QStandardItem *Library::findOrCreateArtist(const std::string &artistName) {
   std::string artist = artistName.empty() ? "Unknown Artist" : artistName;
   QString qArtistName = QString::fromStdString(artist);
 
   // Search through top-level items (all are ArtistItems)
-  for (int i = 0; i < model->rowCount(); ++i) {
-    QStandardItem *item = model->item(i);
+  for (int i = 0; i < treeModel->rowCount(); ++i) {
+    QStandardItem *item = treeModel->item(i);
     if (item && item->text() == qArtistName) {
       return item;
     }
@@ -80,8 +98,14 @@ QStandardItem *Library::findOrCreateAlbum(QStandardItem *artistItem,
   // Search through children of artist (all are AlbumItems)
   for (int i = 0; i < artistItem->rowCount(); ++i) {
     QStandardItem *item = artistItem->child(i);
-    if (item && item->text() == qAlbumName) {
-      return item;
+    if (item) {
+      AlbumItem *albumItem = static_cast<AlbumItem *>(item);
+      if (albumItem && albumItem->getAlbum()) {
+        QString existingAlbumName = QString::fromStdString(albumItem->getAlbum()->getName());
+        if (existingAlbumName == qAlbumName) {
+          return item;
+        }
+      }
     }
   }
 

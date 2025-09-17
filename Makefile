@@ -997,16 +997,18 @@ compiler_moc_header_clean:
 moc_controller.cpp: controller/controller.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		moc_predefs.h \
 		/usr/lib/qt6/moc
 	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include controller/controller.hpp -o moc_controller.cpp
 
 moc_library.cpp: library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		moc_predefs.h \
 		/usr/lib/qt6/moc
 	/usr/lib/qt6/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include library/library.hpp -o moc_library.cpp
@@ -1027,8 +1029,9 @@ moc_queue_model.cpp: queue/queue_model.hpp \
 moc_player_context.cpp: context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp \
@@ -1040,8 +1043,9 @@ moc_collection_treeview.cpp: ui/collection_treeview.hpp \
 		context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp \
@@ -1054,8 +1058,9 @@ moc_queue_listview.cpp: ui/queue_listview.hpp \
 		context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp \
@@ -1072,8 +1077,9 @@ moc_mediacontrol.cpp: ui/mediacontrol/mediacontrol.hpp \
 		context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp \
@@ -1100,8 +1106,9 @@ compiler_clean: compiler_moc_predefs_clean compiler_moc_header_clean
 main.o: main.cpp context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp \
@@ -1117,18 +1124,23 @@ main.o: main.cpp context/player_context.hpp \
 controller.o: controller/controller.cpp controller/controller.hpp \
 		library/library.hpp \
 		library/album.hpp \
+		track/track.hpp \
 		library/artist.hpp \
-		track/track.hpp
+		library/playlist.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o controller.o controller/controller.cpp
 
 library.o: library/library.cpp library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		library/library_model.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o library.o library/library.cpp
 
-library_model.o: library/library_model.cpp 
+library_model.o: library/library_model.cpp library/library_model.hpp \
+		library/album.hpp \
+		track/track.hpp \
+		library/artist.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o library_model.o library/library_model.cpp
 
 queue.o: queue/queue.cpp queue/queue.hpp \
@@ -1143,8 +1155,9 @@ queue_model.o: queue/queue_model.cpp queue/queue_model.hpp \
 player_context.o: context/player_context.cpp context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp
@@ -1157,8 +1170,9 @@ mediacontrol.o: ui/mediacontrol/mediacontrol.cpp ui/mediacontrol/mediacontrol.hp
 		context/player_context.hpp \
 		library/library.hpp \
 		library/album.hpp \
-		library/artist.hpp \
 		track/track.hpp \
+		library/artist.hpp \
+		library/playlist.hpp \
 		controller/controller.hpp \
 		queue/queue.hpp \
 		queue/queue_model.hpp

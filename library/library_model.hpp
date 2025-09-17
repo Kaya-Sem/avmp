@@ -8,6 +8,29 @@
 #include "track/track.hpp"
 #include <memory>
 #include <QList>
+#include <QPixmap>
+#include <QIcon>
+#include <QPainter>
+#include <QBrush>
+#include <QColor>
+#include <algorithm>
+#include <taglib/fileref.h>
+#include <taglib/tag.h>
+#include <taglib/mpegfile.h>
+#include <taglib/flacfile.h>
+#include <taglib/mp4file.h>
+#include <taglib/vorbisfile.h>
+#include <taglib/xiphcomment.h>
+#include <taglib/id3v2tag.h>
+#include <taglib/attachedpictureframe.h>
+#include <taglib/flacpicture.h>
+#include <taglib/mp4coverart.h>
+
+// Utility function to extract album artwork from a track
+QPixmap extractAlbumArtwork(const std::string& filePath);
+
+// Forward declarations
+class TrackItem;
 
 class LibraryItem : public QStandardItem {
 public:
@@ -42,7 +65,7 @@ public:
     for (int i = 0; i < rowCount(); ++i) {
       QStandardItem *albumItem = child(i);
       if (albumItem) {
-        LibraryItem *libraryAlbumItem = dynamic_cast<LibraryItem *>(albumItem);
+        LibraryItem *libraryAlbumItem = static_cast<LibraryItem *>(albumItem);
         if (libraryAlbumItem) {
           tracks.append(libraryAlbumItem->getAllTracks());
         }
@@ -65,9 +88,11 @@ class AlbumItem : public LibraryItem {
 public:
   explicit AlbumItem(std::shared_ptr<Album> album,
                      std::shared_ptr<Artist> artist)
-      : LibraryItem(
-            QString::fromStdString(album ? album->getName() : "Unknown Album")),
+      : LibraryItem(createDisplayText(album)),
         albumPtr(album), artistPtr(artist) {
+    
+    // Initially set default icon - artwork will be loaded when first track is added
+    setDefaultAlbumIcon();
   }
 
   Type getType() const override { return Type::Album; }
@@ -78,7 +103,7 @@ public:
     for (int i = 0; i < rowCount(); ++i) {
       QStandardItem *trackItem = child(i);
       if (trackItem) {
-        LibraryItem *libraryTrackItem = dynamic_cast<LibraryItem *>(trackItem);
+        LibraryItem *libraryTrackItem = static_cast<LibraryItem *>(trackItem);
         if (libraryTrackItem && libraryTrackItem->getType() == Type::Track) {
           // Use the virtual method instead of casting to specific type
           QList<std::shared_ptr<Track>> childTracks = libraryTrackItem->getAllTracks();
@@ -99,10 +124,29 @@ public:
     return artistPtr ? QString::fromStdString(artistPtr->name)
                      : "Unknown Artist";
   }
+  
+  // Method to update album artwork when tracks are added
+  void updateAlbumArtwork();
+  
+  // Method to update the display text (when year is set)
+  void updateDisplayText();
 
 private:
   std::shared_ptr<Album> albumPtr;
   std::shared_ptr<Artist> artistPtr;
+  
+  static QString createDisplayText(std::shared_ptr<Album> album) {
+    if (!album) {
+      return "Unknown Album\n";
+    }
+    
+    QString albumName = QString::fromStdString(album->getName());
+    int year = album->getYear();
+    
+    return albumName + "\n" + QString::number(year);
+  }
+  
+  void setDefaultAlbumIcon();
 };
 
 class TrackItem : public LibraryItem {
