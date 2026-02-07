@@ -1,8 +1,4 @@
-# Avant Garde Music Player
-
-> an experimental audiophile music player
-
-<img width="2880" height="1800" alt="music player screenshot" src="https://github.com/user-attachments/assets/48ef6f06-72f6-4634-9c88-7b1f6717df2b" />
+<img width="2880" height="1800" alt="image" src="https://github.com/user-attachments/assets/0e173120-7384-4079-aa72-8a78a881d4ad" />
 
 
 (very much in the works)
@@ -11,8 +7,8 @@
 
 ### Development
 
-`avmp` defines everything in code. No `.ui` or other design tools
-are used. I wanted a codebase that was easy to get started with,
+`avmp` defines everything in C++ code. No `.ui` or other design tools
+are used for Qt. I wanted a codebase that was easy to get started with,
 so there's no need to learn Qt Creator or others.
 
 
