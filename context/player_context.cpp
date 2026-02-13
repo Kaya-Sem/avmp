@@ -12,12 +12,15 @@ PlayerContext* PlayerContext::instance() {
 }
 
 PlayerContext::PlayerContext(QObject* parent)
-    : QObject(parent), m_controller(nullptr), m_library(nullptr), m_queue(nullptr) {}
+    : QObject(parent), m_controller(nullptr), m_library(nullptr), m_queue(nullptr), m_playlistManager(nullptr) {}
 
 void PlayerContext::initialize(Controller* controller, Library* library, Queue* queue) {
     m_controller = controller;
     m_library = library;
     m_queue = queue;
+
+    m_playlistManager = new PlaylistManager(this);
+    m_playlistManager->loadAll();
 }
 
 

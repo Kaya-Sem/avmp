@@ -15,6 +15,8 @@ SOURCES += main.cpp \
            controller/controller.cpp \
            library/library.cpp \
            library/library_model.cpp \
+           library/playlist.cpp \
+           library/playlist_manager.cpp \
            queue/queue.cpp \
            queue/queue_model.cpp \
            context/player_context.cpp \
@@ -24,6 +26,8 @@ SOURCES += main.cpp \
 HEADERS += controller/controller.hpp \
            library/library.hpp \
            library/library_model.hpp \
+           library/playlist.hpp \
+           library/playlist_manager.hpp \
            queue/queue.hpp \
            queue/queue_model.hpp \
            track/track.hpp \

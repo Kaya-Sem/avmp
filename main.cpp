@@ -1,6 +1,7 @@
 #include "context/player_context.hpp"
 #include "controller/controller.hpp"
 #include "library/library.hpp"
+#include "library/playlist_manager.hpp"
 #include "qlistview.h"
 #include "queue/queue.hpp"
 #include "qwidget.h"
@@ -16,12 +17,14 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QHBoxLayout>
+#include <QInputDialog>
 #include <QLabel>
 #include <QListView>
 #include <QMainWindow>
 #include <QMediaPlayer>
 #include <QMenu>
 #include <QMenuBar>
+#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QSplitter>
@@ -75,18 +78,28 @@ int main(int argc, char *argv[]) {
   leftTabWidget->setMaximumWidth(700);
   leftTabWidget->addTab(new CollectionTreeviewTab, "Collection");
 
-  QListView * playlistList = new QListView();
-  playlistList->setFrameStyle(QFrame::NoFrame);
-  leftTabWidget->addTab(playlistList, "Playlists");
+  // Playlists tab
+  QWidget *playlistTab = new QWidget();
+  QVBoxLayout *playlistLayout = new QVBoxLayout();
 
+  QTreeView *playlistTree = new QTreeView();
+  playlistTree->setFrameStyle(QFrame::NoFrame);
+  playlistTree->setHeaderHidden(true);
+  PlaylistManager *pm = ctx->playlistManager();
+  playlistTree->setModel(pm->getModel());
+  playlistTree->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  QPushButton *newPlaylistBtn = new QPushButton("New Playlist");
+  playlistLayout->addWidget(playlistTree);
+  playlistLayout->addWidget(newPlaylistBtn);
+  playlistTab->setLayout(playlistLayout);
+  leftTabWidget->addTab(playlistTab, "Playlists");
 
   QTabWidget * centerPanel = new QTabWidget();
 
   // Center content area - Queue list
   QueueListView *queueListView = new QueueListView();
   centerPanel->addTab(queueListView, "Queue");
-  QWidget * rockplaylist = new QWidget();
-  centerPanel->addTab(rockplaylist, "Lovely Rock");
 
   // Right tabbed pane
   QTabWidget *rightTabWidget = new QTabWidget();
@@ -216,6 +229,90 @@ int main(int argc, char *argv[]) {
           }
         }
       });
+
+  // Playlist UI connections
+  QObject::connect(newPlaylistBtn, &QPushButton::clicked, [&window, pm]() {
+    bool ok;
+    QString name = QInputDialog::getText(&window, "New Playlist",
+                                         "Playlist name:", QLineEdit::Normal,
+                                         "", &ok);
+    if (ok && !name.isEmpty()) {
+      pm->createPlaylist(name);
+      logToTerminal("Created playlist: " + name);
+    }
+  });
+
+  QObject::connect(playlistTree, &QTreeView::doubleClicked,
+                   [pm, queue, centerPanel](const QModelIndex &index) {
+    // If it's a top-level item (playlist), load all tracks into queue
+    if (!index.parent().isValid()) {
+      QString name = index.data().toString();
+      auto playlist = pm->getPlaylist(name);
+      if (!playlist)
+        return;
+
+      queue->clear();
+      for (const auto &track : playlist->getTracks()) {
+        queue->appendTrack(track);
+      }
+      centerPanel->setCurrentIndex(0);
+      logToTerminal("Loaded playlist: " + name);
+    } else {
+      // It's a track item — play just that track
+      QString filePath = index.data(Qt::UserRole + 1).toString();
+      if (!filePath.isEmpty()) {
+        auto track = std::make_shared<Track>(filePath);
+        queue->playNow(track);
+      }
+    }
+  });
+
+  QObject::connect(playlistTree, &QTreeView::customContextMenuRequested,
+                   [&window, playlistTree, pm](const QPoint &pos) {
+    QModelIndex index = playlistTree->indexAt(pos);
+    if (!index.isValid())
+      return;
+
+    // Only show context menu on top-level playlist items
+    if (index.parent().isValid())
+      return;
+
+    QString name = index.data().toString();
+    QMenu menu(playlistTree);
+
+    menu.addAction("Delete Playlist", [&window, pm, name]() {
+      auto result = QMessageBox::question(&window, "Delete Playlist",
+          "Delete playlist \"" + name + "\"? This will remove all hardlinked files.",
+          QMessageBox::Yes | QMessageBox::No);
+      if (result == QMessageBox::Yes) {
+        pm->deletePlaylist(name);
+        logToTerminal("Deleted playlist: " + name);
+      }
+    });
+
+    menu.addAction("Rename Playlist", [&window, pm, name]() {
+      bool ok;
+      QString newName = QInputDialog::getText(&window, "Rename Playlist",
+                                              "New name:", QLineEdit::Normal,
+                                              name, &ok);
+      if (ok && !newName.isEmpty() && newName != name) {
+        auto playlist = pm->getPlaylist(name);
+        if (playlist) {
+          pm->createPlaylist(newName);
+          auto newPlaylist = pm->getPlaylist(newName);
+          if (newPlaylist) {
+            for (const auto &track : playlist->getTracks()) {
+              newPlaylist->addTrack(*track);
+            }
+          }
+          pm->deletePlaylist(name);
+          logToTerminal("Renamed playlist: " + name + " -> " + newName);
+        }
+      }
+    });
+
+    menu.exec(playlistTree->viewport()->mapToGlobal(pos));
+  });
 
   QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
   QObject::connect(fullscreenAction, &QAction::triggered, [&window]() {
