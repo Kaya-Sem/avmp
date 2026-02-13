@@ -21,7 +21,8 @@ SOURCES += main.cpp \
            queue/queue_model.cpp \
            context/player_context.cpp \
            ui/settings_window.cpp \
-           ui/mediacontrol/mediacontrol.cpp
+           ui/mediacontrol/mediacontrol.cpp \
+           ui/tabs/track_context_tab.cpp
 
 HEADERS += controller/controller.hpp \
            library/library.hpp \
@@ -35,6 +36,7 @@ HEADERS += controller/controller.hpp \
            ui/collection_treeview.hpp \
            ui/queue_listview.hpp \
            ui/settings_window.hpp \
-           ui/mediacontrol/mediacontrol.hpp
+           ui/mediacontrol/mediacontrol.hpp \
+           ui/tabs/track_context_tab.hpp
 
 LIBS += -lavformat -lavcodec -lswscale -lswresample -lavutil -lopenjp2 -ltag

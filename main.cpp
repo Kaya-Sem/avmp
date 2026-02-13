@@ -129,7 +129,8 @@ int main(int argc, char *argv[]) {
 
   logToTerminal("Terminal initialized");
 
-  rightTabWidget->addTab(new TrackContextTab(), "Track");
+  TrackContextTab *trackContextTab = new TrackContextTab();
+  rightTabWidget->addTab(trackContextTab, "Track");
   rightTabWidget->addTab(terminalTabWidget, "Terminal");
 
   mainSplitter->addWidget(leftTabWidget);
@@ -313,6 +314,12 @@ int main(int argc, char *argv[]) {
 
     menu.exec(playlistTree->viewport()->mapToGlobal(pos));
   });
+
+  // Update track context tab when current track changes
+  QObject::connect(queue, &Queue::currentIndexChanged, trackContextTab,
+                   [queue, trackContextTab](int) {
+                     trackContextTab->updateTrack(queue->getCurrentTrack());
+                   });
 
   QObject::connect(exitAction, &QAction::triggered, &app, &QApplication::quit);
   QObject::connect(fullscreenAction, &QAction::triggered, [&window]() {

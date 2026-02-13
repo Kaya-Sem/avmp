@@ -62,7 +62,8 @@ SOURCES       = main.cpp \
 		queue/queue_model.cpp \
 		context/player_context.cpp \
 		ui/settings_window.cpp \
-		ui/mediacontrol/mediacontrol.cpp moc_controller.cpp \
+		ui/mediacontrol/mediacontrol.cpp \
+		ui/tabs/track_context_tab.cpp moc_controller.cpp \
 		moc_library.cpp \
 		moc_playlist_manager.cpp \
 		moc_queue.cpp \
@@ -71,7 +72,8 @@ SOURCES       = main.cpp \
 		moc_collection_treeview.cpp \
 		moc_queue_listview.cpp \
 		moc_settings_window.cpp \
-		moc_mediacontrol.cpp
+		moc_mediacontrol.cpp \
+		moc_track_context_tab.cpp
 OBJECTS       = main.o \
 		controller.o \
 		library.o \
@@ -83,6 +85,7 @@ OBJECTS       = main.o \
 		player_context.o \
 		settings_window.o \
 		mediacontrol.o \
+		track_context_tab.o \
 		moc_controller.o \
 		moc_library.o \
 		moc_playlist_manager.o \
@@ -92,7 +95,8 @@ OBJECTS       = main.o \
 		moc_collection_treeview.o \
 		moc_queue_listview.o \
 		moc_settings_window.o \
-		moc_mediacontrol.o
+		moc_mediacontrol.o \
+		moc_track_context_tab.o
 DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		/usr/lib64/qt6/mkspecs/common/unix.conf \
 		/usr/lib64/qt6/mkspecs/common/linux.conf \
@@ -296,7 +300,8 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		ui/collection_treeview.hpp \
 		ui/queue_listview.hpp \
 		ui/settings_window.hpp \
-		ui/mediacontrol/mediacontrol.hpp main.cpp \
+		ui/mediacontrol/mediacontrol.hpp \
+		ui/tabs/track_context_tab.hpp main.cpp \
 		controller/controller.cpp \
 		library/library.cpp \
 		library/library_model.cpp \
@@ -306,7 +311,8 @@ DIST          = /usr/lib64/qt6/mkspecs/features/spec_pre.prf \
 		queue/queue_model.cpp \
 		context/player_context.cpp \
 		ui/settings_window.cpp \
-		ui/mediacontrol/mediacontrol.cpp
+		ui/mediacontrol/mediacontrol.cpp \
+		ui/tabs/track_context_tab.cpp
 QMAKE_TARGET  = ssmp
 DESTDIR       = 
 TARGET        = ssmp
@@ -728,8 +734,8 @@ distdir: FORCE
 	@test -d $(DISTDIR) || mkdir -p $(DISTDIR)
 	$(COPY_FILE) --parents $(DIST) $(DISTDIR)/
 	$(COPY_FILE) --parents /usr/lib64/qt6/mkspecs/features/data/dummy.cpp $(DISTDIR)/
-	$(COPY_FILE) --parents controller/controller.hpp library/library.hpp library/library_model.hpp library/playlist.hpp library/playlist_manager.hpp queue/queue.hpp queue/queue_model.hpp track/track.hpp context/player_context.hpp ui/collection_treeview.hpp ui/queue_listview.hpp ui/settings_window.hpp ui/mediacontrol/mediacontrol.hpp $(DISTDIR)/
-	$(COPY_FILE) --parents main.cpp controller/controller.cpp library/library.cpp library/library_model.cpp library/playlist.cpp library/playlist_manager.cpp queue/queue.cpp queue/queue_model.cpp context/player_context.cpp ui/settings_window.cpp ui/mediacontrol/mediacontrol.cpp $(DISTDIR)/
+	$(COPY_FILE) --parents controller/controller.hpp library/library.hpp library/library_model.hpp library/playlist.hpp library/playlist_manager.hpp queue/queue.hpp queue/queue_model.hpp track/track.hpp context/player_context.hpp ui/collection_treeview.hpp ui/queue_listview.hpp ui/settings_window.hpp ui/mediacontrol/mediacontrol.hpp ui/tabs/track_context_tab.hpp $(DISTDIR)/
+	$(COPY_FILE) --parents main.cpp controller/controller.cpp library/library.cpp library/library_model.cpp library/playlist.cpp library/playlist_manager.cpp queue/queue.cpp queue/queue_model.cpp context/player_context.cpp ui/settings_window.cpp ui/mediacontrol/mediacontrol.cpp ui/tabs/track_context_tab.cpp $(DISTDIR)/
 
 
 clean: compiler_clean 
@@ -761,9 +767,9 @@ compiler_moc_predefs_clean:
 moc_predefs.h: /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 	g++ -pipe -O2 -Wall -Wextra -dM -E -o moc_predefs.h /usr/lib64/qt6/mkspecs/features/data/dummy.cpp
 
-compiler_moc_header_make_all: moc_controller.cpp moc_library.cpp moc_playlist_manager.cpp moc_queue.cpp moc_queue_model.cpp moc_player_context.cpp moc_collection_treeview.cpp moc_queue_listview.cpp moc_settings_window.cpp moc_mediacontrol.cpp
+compiler_moc_header_make_all: moc_controller.cpp moc_library.cpp moc_playlist_manager.cpp moc_queue.cpp moc_queue_model.cpp moc_player_context.cpp moc_collection_treeview.cpp moc_queue_listview.cpp moc_settings_window.cpp moc_mediacontrol.cpp moc_track_context_tab.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) moc_controller.cpp moc_library.cpp moc_playlist_manager.cpp moc_queue.cpp moc_queue_model.cpp moc_player_context.cpp moc_collection_treeview.cpp moc_queue_listview.cpp moc_settings_window.cpp moc_mediacontrol.cpp
+	-$(DEL_FILE) moc_controller.cpp moc_library.cpp moc_playlist_manager.cpp moc_queue.cpp moc_queue_model.cpp moc_player_context.cpp moc_collection_treeview.cpp moc_queue_listview.cpp moc_settings_window.cpp moc_mediacontrol.cpp moc_track_context_tab.cpp
 moc_controller.cpp: controller/controller.hpp \
 		library/library.hpp \
 		library/album.hpp \
@@ -868,6 +874,12 @@ moc_mediacontrol.cpp: ui/mediacontrol/mediacontrol.hpp \
 		/usr/lib64/qt6/libexec/moc
 	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include ui/mediacontrol/mediacontrol.hpp -o moc_mediacontrol.cpp
 
+moc_track_context_tab.cpp: ui/tabs/track_context_tab.hpp \
+		track/track.hpp \
+		moc_predefs.h \
+		/usr/lib64/qt6/libexec/moc
+	/usr/lib64/qt6/libexec/moc $(DEFINES) --include /home/kayasem/Software/Personal/sexy-music-player/moc_predefs.h -I/usr/lib64/qt6/mkspecs/linux-g++ -I/home/kayasem/Software/Personal/sexy-music-player -I/home/kayasem/Software/Personal/sexy-music-player -I/usr/include/taglib -I/usr/include/qt6 -I/usr/include/qt6/QtWidgets -I/usr/include/qt6/QtMultimedia -I/usr/include/qt6/QtGui -I/usr/include/qt6/QtNetwork -I/usr/include/qt6/QtCore -I/usr/include/c++/15.1.1 -I/usr/include/c++/15.1.1/x86_64-pc-linux-gnu -I/usr/include/c++/15.1.1/backward -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include -I/usr/local/include -I/usr/lib/gcc/x86_64-pc-linux-gnu/15.1.1/include-fixed -I/usr/include ui/tabs/track_context_tab.hpp -o moc_track_context_tab.cpp
+
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
 compiler_moc_source_make_all:
@@ -971,6 +983,13 @@ mediacontrol.o: ui/mediacontrol/mediacontrol.cpp ui/mediacontrol/mediacontrol.hp
 		queue/queue_model.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mediacontrol.o ui/mediacontrol/mediacontrol.cpp
 
+track_context_tab.o: ui/tabs/track_context_tab.cpp ui/tabs/track_context_tab.hpp \
+		track/track.hpp \
+		library/library_model.hpp \
+		library/album.hpp \
+		library/artist.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o track_context_tab.o ui/tabs/track_context_tab.cpp
+
 moc_controller.o: moc_controller.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_controller.o moc_controller.cpp
 
@@ -1000,6 +1019,9 @@ moc_settings_window.o: moc_settings_window.cpp
 
 moc_mediacontrol.o: moc_mediacontrol.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_mediacontrol.o moc_mediacontrol.cpp
+
+moc_track_context_tab.o: moc_track_context_tab.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o moc_track_context_tab.o moc_track_context_tab.cpp
 
 ####### Install
 
