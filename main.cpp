@@ -55,6 +55,7 @@ void logToTerminal(const QString &message) {
 
 int main(int argc, char *argv[]) {
   QApplication app(argc, argv);
+  qRegisterMetaType<std::vector<std::shared_ptr<Track>>>("std::vector<std::shared_ptr<Track>>");
   Library *library = new Library();
   Controller *controller = new Controller(library);
 
@@ -335,6 +336,9 @@ int main(int argc, char *argv[]) {
 
   window.showFullScreen();
   window.show();
+
+  // Auto-scan library on startup (async, off main thread)
+  controller->scanLibraryAsync();
 
   int result = app.exec();
 

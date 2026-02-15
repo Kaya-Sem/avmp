@@ -2,6 +2,7 @@
 #include "track/track.hpp"
 #include <QCoreApplication>
 #include <QObject>
+#include <QtConcurrent>
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -27,8 +28,15 @@ namespace fs = std::filesystem;
 
 Controller::Controller(Library *library, QObject *parent) : QObject(parent) {
   this->library = library;
-  // Set default library path
   libraryPaths.append("/home/kayasem/Music");
+
+  connect(this, &Controller::scanLibraryFinished, this, [this](const std::vector<std::shared_ptr<Track>> &tracks) {
+    this->library->clear();
+    for (const auto &track : tracks) {
+      this->library->addTrack(track);
+    }
+    emit scanLibraryUpdate("Library scan completed. Loaded " + std::to_string(tracks.size()) + " files");
+  });
 }
 
 void Controller::setLibraryPaths(const QStringList &paths) {
@@ -244,4 +252,64 @@ void Controller::scanLibrary() {
 
   emit scanLibraryUpdate("Library scan completed. Processed " +
                          std::to_string(music_files.size()) + " files");
+}
+
+void Controller::scanLibraryAsync() {
+  emit scanLibraryUpdate("Starting library scan (background)...");
+
+  QtConcurrent::run([this]() {
+    std::vector<std::shared_ptr<Track>> tracks;
+    const std::vector<std::string> extentions = {".mp3", ".flac", ".wav", ".ogg", ".m4a"};
+
+    std::vector<fs::path> music_files;
+
+    for (const QString &libraryPath : libraryPaths) {
+      try {
+        for (const auto &entry : fs::recursive_directory_iterator(libraryPath.toStdString())) {
+          if (entry.is_regular_file()) {
+            std::string ext = entry.path().extension().string();
+            for (const auto &music_ext : extentions) {
+              if (ext == music_ext) {
+                music_files.push_back(entry.path());
+                break;
+              }
+            }
+          }
+        }
+      } catch (const fs::filesystem_error &e) {
+        // Can't emit safely from background thread to update UI mid-scan
+        std::cerr << "Error scanning path: " << libraryPath.toStdString() << " - " << e.what() << "\n";
+      }
+    }
+
+    for (const auto &path : music_files) {
+      std::shared_ptr<Track> track_ptr = std::make_shared<Track>(path);
+      TagLib::FileRef file(path.c_str());
+
+      if (!file.isNull() && file.tag()) {
+        TagLib::Tag *tag = file.tag();
+        track_ptr->artist = tag->artist().to8Bit(true);
+        track_ptr->album = tag->album().to8Bit(true);
+        track_ptr->title = tag->title().to8Bit(true);
+        track_ptr->year = tag->year();
+        track_ptr->track = tag->track();
+        track_ptr->genre = tag->genre().to8Bit(true);
+        track_ptr->comment = tag->comment().to8Bit(true);
+
+        if (file.audioProperties()) {
+          auto *props = file.audioProperties();
+          track_ptr->bitrate = props->bitrate();
+          track_ptr->sampleRate = props->sampleRate();
+          track_ptr->channels = props->channels();
+          track_ptr->duration = props->lengthInSeconds();
+        }
+
+        extractExtendedTags(file, track_ptr);
+      }
+
+      tracks.push_back(track_ptr);
+    }
+
+    emit scanLibraryFinished(tracks);
+  });
 }

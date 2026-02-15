@@ -103,8 +103,10 @@ void Queue::seek(int value) {
   player->setPosition(newPos);
 }
 
-void Queue::stop() { 
-  player->stop(); 
+void Queue::stop() {
+  isManualAdvance = true;
+  player->stop();
+  emit playbackStopped();
 }
 
 std::shared_ptr<Track> Queue::getCurrentTrack() {
@@ -134,24 +136,23 @@ void Queue::playAt(int trackIndex) {
 }
 
 void Queue::onPlaybackStateChanged(QMediaPlayer::PlaybackState state) {
+  if (state == QMediaPlayer::PlayingState) {
+    // Reset manual advance flag once the new track starts playing
+    isManualAdvance = false;
+  }
+
   // When playback stops (track finished), automatically go to next track
-  if (state == QMediaPlayer::StoppedState) {
-    // Only auto-advance if this wasn't a manual track change
-    if (!isManualAdvance) {
-      const auto& trackList = queueModel->getTrackList();
-      // Only auto-advance if we're not at the end of the queue
-      if (index >= 0 && index < trackList.length() - 1) {
-        index += 1;
+  if (state == QMediaPlayer::StoppedState && !isManualAdvance) {
+    const auto& trackList = queueModel->getTrackList();
+    // Only auto-advance if we're not at the end of the queue
+    if (index >= 0 && index < trackList.length() - 1) {
+      index += 1;
 
-        std::string path = trackList.at(index)->fullPath;
-        player->setSource(QUrl::fromLocalFile(QString::fromStdString(path)));
+      std::string path = trackList.at(index)->fullPath;
+      player->setSource(QUrl::fromLocalFile(QString::fromStdString(path)));
 
-        player->play();
-        emit currentIndexChanged(index);
-      }
-    } else {
-      // Reset the flag after a manual advance
-      isManualAdvance = false;
+      player->play();
+      emit currentIndexChanged(index);
     }
   }
 }
